@@ -16,7 +16,7 @@ from torch.nn.parameter import Parameter
 from typing import Optional, Tuple
 
 
-class TransformerEncoderLayer(Module):
+# class TransformerEncoderLayer(Module):
 
 
 '''

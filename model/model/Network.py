@@ -9,7 +9,7 @@ class Encoder(nn.Module):
     """
     Encoder network
     """
-    def __init__(self, encoded_image_size=14, model_type='wide_res'):
+    def __init__(self, encoded_image_size=14, embed_dim=512, model_type='wide_res', tf_encoder=0):
         """
         :param encoded_image_size: size of preprocessed image data
         :param model_type: select encoder model type from 'wide resnet', 'resnet', and 'resnext'
@@ -27,17 +27,35 @@ class Encoder(nn.Module):
             resnet = torchvision.models.efficientnet_b0(pretrained=True)  # pretrained ImageNet efficientnet_b0
         elif model_type == 'efficientnetB2':
             resnet = torchvision.models.efficientnet_b2(pretrained=True)
-            self.projector =torch.nn.Linear(1408, 2048) #we add this here to match the size, because output of resnet is 2048, efficientnetB2 is  1048
+
+            if tf_encoder > 0:
+                # if we have transformer encoders then we need to keep embed dim
+                self.projector = torch.nn.Linear(1408, embed_dim)
+            else:
+                # 4 * embed dim because this is the requirement for the init lstm function in the decoder
+                self.projector = torch.nn.Linear(1408, 4 * embed_dim)
+                # we add this here to match the size, because output of resnet is 2048, efficientnetB2 is 1048
         elif model_type == 'efficientnetB3':
             resnet = torchvision.models.efficientnet_b3(pretrained=True)
         elif model_type == 'efficientnetB7':
             resnet = torchvision.models.efficientnet_b7(pretrained=True)
-            self.projector =torch.nn.Linear(2560, 2048)
+            self.projector = torch.nn.Linear(2560, 2048)
             #image: 600*600
 
         modules = list(resnet.children())[:-2]
         self.resnet = nn.Sequential(*modules)
         self.adaptive_pool = nn.AdaptiveAvgPool2d((encoded_image_size, encoded_image_size))
+
+        self.tf_encoder = tf_encoder
+        if tf_encoder > 0:
+            from .modules.TransformerLayers import TransformerEncoderLayer
+            self.transformer_layers = nn.ModuleList()
+            for i in range(tf_encoder):
+                # default just keep heads = embed_dim // 64
+                n_heads = embed_dim // 64
+                tf_encoder_layer = TransformerEncoderLayer(embed_dim, n_heads)
+                self.transformer_layers.append(tf_encoder_layer)
+                self.tf_out_projector = torch.nn.Linear(embed_dim, 4 * embed_dim)
 
         self.fine_tune()
 
@@ -53,10 +71,32 @@ class Encoder(nn.Module):
             out = self.adaptive_pool(out)  # (batch_size, 2048, encoded_image_size, encoded_image_size)
             out = out.permute(0, 2, 3, 1)  # (batch_size, encoded_image_size, encoded_image_size, 2048)
 
-        # later if you have transformer layers: start from here
-        # for example out = self.transformer_layer(out) ....
-        if self.projector is not None:
-            out = self.projector(out)
+        if self.tf_encoder > 0:
+            b, w, h = out.size(0), out.size(1), out.size(2)
+
+            # we "flattened the 2d input to 1d"
+            out = out.view(b, w*h, -1).transpose(0, 1).contiguous()
+
+            # here we re-project the size of cnn output to 512 (for our transformer_
+            if self.projector is not None:
+                out = self.projector(out)
+
+            # out here is [T x B x H] so remember to transpose again later
+            for layer in self.transformer_layers:
+                out = layer(out)
+
+            # here we project the size from 512 to 2048 for the lstm layer
+            out = out.transpose(0, 1)
+            out = self.tf_out_projector(out)
+
+            # re-view the output so we don't have to change the decoder
+            out = out.view(b, w, h, -1)
+
+        else:
+            # later if you have transformer layers: start from here
+            # for example out = self.transformer_layer(out) ....
+            if self.projector is not None:
+                out = self.projector(out)
         #to do
         return out
 

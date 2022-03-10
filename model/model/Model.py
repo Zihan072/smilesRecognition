@@ -83,7 +83,9 @@ class MSTS:
                                               device=self._device)
             self._decoder.to(self._device, non_blocking=self._gpu_non_block)
 
-        self._encoder = Encoder(model_type=config.encoder_type)
+        self._encoder = Encoder(model_type=config.encoder_type,
+                                tf_encoder=config.tf_encoder,
+                                embed_dim=self._emb_dim)
         self._encoder.to(self._device, non_blocking=self._gpu_non_block)
         self._encoder.fine_tune(self._fine_tune_encoder)
         print(self._encoder)
