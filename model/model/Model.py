@@ -1,3 +1,5 @@
+import datetime
+
 import torch.backends.cudnn as cudnn
 import torch.optim
 import torch.utils.data
@@ -21,6 +23,8 @@ import yaml
 import asyncio
 import time
 from itertools import combinations
+import datetime
+
 
 
 class MSTS:
@@ -60,6 +64,7 @@ class MSTS:
         self._model_name = self._model_name_maker()
 
         self._seed_everything(self._seed)
+        self.fp16 = config.fp16
 
         # define different decoder by work type
         if self._work_type == 'train':
@@ -98,6 +103,11 @@ class MSTS:
             self._encoder = nn.DataParallel(self._encoder)
         self._criterion = nn.CrossEntropyLoss().to(self._device, non_blocking=self._gpu_non_block)
 
+        if self.fp16:
+            self.grad_scaler = torch.cuda.amp.GradScaler()
+        else:
+            self.grad_scaler = None
+
     def _clip_gradient(self, optimizer, grad_clip):
         for group in optimizer.param_groups:
             for param in group['params']:
@@ -111,33 +121,48 @@ class MSTS:
         mean_loss = 0
         mean_accuracy = 0
 
+        total_image_processed = 0
+        start_time = time.time()  # record the starting moment when we start training
+        log_step = 50  # we will print out the speed every 200 training steps
+        total_batches = len(train_loader)
+
+        #TODO: measuring training speed
+        # The unit that we can use to measure speed is images/second or tokens/second
         for i, (imgs, sequence, sequence_lens) in enumerate(train_loader):
             imgs = imgs.to(self._device)
             sequence = sequence.to(self._device)
             sequence_lens = sequence_lens.to(self._device)
 
-            imgs = self._encoder(imgs)
-            predictions, caps_sorted, decode_lengths, alphas, sort_ind = self._decoder(imgs, sequence, sequence_lens)
+            # the forward pass starts from here
+            # normally the data  type of imgs and sequence is fp32 (32 bit for float representation)
+            # for modern GPUS we can represent float with fp16 (16 bit for float representation)
+            # so we can have 2x more meory and computation is theoretically 2x faster
+            with torch.cuda.amp.autocast(enabled=self.fp16):
+                imgs = self._encoder(imgs)
+                predictions, caps_sorted, decode_lengths, alphas, sort_ind = self._decoder(imgs, sequence, sequence_lens)
 
-            targets = caps_sorted[:, 1:]
+                targets = caps_sorted[:, 1:]
 
-            # Calculate accuracy
-            accr = self._accuracy_calcluator(predictions.detach().cpu().numpy(),
-                                             targets.detach().cpu().numpy())
-            mean_accuracy = mean_accuracy + (accr - mean_accuracy) / (i + 1)
+                # Calculate accuracy
+                accr = self._accuracy_calcluator(predictions.detach().cpu().numpy(),
+                                                 targets.detach().cpu().numpy())
+                mean_accuracy = mean_accuracy + (accr - mean_accuracy) / (i + 1)
 
-            predictions = pack_padded_sequence(predictions, decode_lengths, batch_first=True).data
-            targets = pack_padded_sequence(targets, decode_lengths, batch_first=True).data
+                predictions = pack_padded_sequence(predictions, decode_lengths, batch_first=True).data
+                targets = pack_padded_sequence(targets, decode_lengths, batch_first=True).data
 
-            # Calculate loss
-            loss = self._criterion(predictions, targets)
-            mean_loss = mean_loss + (loss.detach().item() - mean_loss) / (i + 1)
+                # Calculate loss
+                loss = self._criterion(predictions, targets)
+                mean_loss = mean_loss + (loss.detach().item() - mean_loss) / (i + 1)
 
             # Back prop.
             self._decoder_optimizer.zero_grad()
             self._encoder_optimizer.zero_grad()
 
-            loss.backward()
+            if self.fp16:
+                self.grad_scaler.scale(loss).backward()
+            else:
+                loss.backward()
 
             # Clip gradients
             if self._grad_clip is not None:
@@ -145,8 +170,34 @@ class MSTS:
                 self._clip_gradient(self._encoder_optimizer, self._grad_clip)
 
             # Update weights
-            self._decoder_optimizer.step()
-            self._encoder_optimizer.step()
+            if self.fp16:
+                self.grad_scaler.step(self._decoder_optimizer)
+                self.grad_scaler.step(self._encoder_optimizer)
+                self.grad_scaler.update()
+            else:
+                self._decoder_optimizer.step()
+                self._encoder_optimizer.step()
+
+            # update the number of images procssed
+            total_image_processed = total_image_processed  + imgs.size(0)
+
+            if (i + 1) % log_step == 0:
+                end_time = time.time()
+                elapse = end_time - start_time
+                img_per_sec = total_image_processed / elapse
+
+                training_time = str(datetime.timedelta(seconds=int(elapse)))
+                print("Iteration %d/%d ; mean_loss %.6f ; mean_accuracy %.5f ; img_per_sec %6.2f ; time: %s"
+                      % (i, total_batches, mean_loss, mean_accuracy, img_per_sec, training_time))
+
+        # after finishing training the epoch
+        end_time = time.time()
+        elapse = end_time - start_time
+        training_time = str(datetime.timedelta(seconds=int(elapse)))
+        print("mean_loss %.6f ; mean_accuracy %.5f ; img_per_sec %6.2f; time: %s"
+             % (mean_loss, mean_accuracy, img_per_sec, training_time))
+
+
 
         return mean_loss, mean_accuracy
 
@@ -157,26 +208,28 @@ class MSTS:
         mean_loss = 0
         mean_accuracy = 0
 
-        for i, (imgs, sequence, sequence_lens) in enumerate(val_loader):
-            imgs = imgs.to(self._device)
-            sequence = sequence.to(self._device)
-            sequence_lens = sequence_lens.to(self._device)
+        with torch.no_grad():
 
-            imgs = self._encoder(imgs)
-            predictions, caps_sorted, decode_lengths, _, _ = self._decoder(imgs, sequence, sequence_lens)
-            targets = caps_sorted[:, 1:]
+            for i, (imgs, sequence, sequence_lens) in enumerate(val_loader):
+                imgs = imgs.to(self._device)
+                sequence = sequence.to(self._device)
+                sequence_lens = sequence_lens.to(self._device)
 
-            accr = self._accuracy_calcluator(predictions.detach().cpu().numpy(),
-                                             targets.detach().cpu().numpy())
+                imgs = self._encoder(imgs)
+                predictions, caps_sorted, decode_lengths, _, _ = self._decoder(imgs, sequence, sequence_lens)
+                targets = caps_sorted[:, 1:]
 
-            mean_accuracy = mean_accuracy + (accr - mean_accuracy) / (i + 1)
+                accr = self._accuracy_calcluator(predictions.detach().cpu().numpy(),
+                                                 targets.detach().cpu().numpy())
 
-            predictions = pack_padded_sequence(predictions, decode_lengths, batch_first=True).data
-            targets = pack_padded_sequence(targets, decode_lengths, batch_first=True).data
+                mean_accuracy = mean_accuracy + (accr - mean_accuracy) / (i + 1)
 
-            loss = self._criterion(predictions, targets)
-            mean_loss = mean_loss + (loss.detach().item() - mean_loss) / (i + 1)
-            del (loss, predictions, caps_sorted, decode_lengths, targets)
+                predictions = pack_padded_sequence(predictions, decode_lengths, batch_first=True).data
+                targets = pack_padded_sequence(targets, decode_lengths, batch_first=True).data
+
+                loss = self._criterion(predictions, targets)
+                mean_loss = mean_loss + (loss.detach().item() - mean_loss) / (i + 1)
+                del (loss, predictions, caps_sorted, decode_lengths, targets)
 
         return mean_loss, mean_accuracy
 

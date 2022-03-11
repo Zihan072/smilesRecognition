@@ -32,6 +32,7 @@ def main():
     parser.add_argument('--dropout', type=float, default=0.5, help='drop out rate')
     parser.add_argument('--device', type=str, default='cuda', help='sets device for model and PyTorch tensors')
     parser.add_argument('--gpu_non_block', type=str2bool, default=True, help='GPU non blocking flag')
+    parser.add_argument('--fp16', type=str2bool, default=True, help='Use half-precision/mixed precision training')
     parser.add_argument('--cudnn_benchmark', type=str2bool, default=True, help='set to true only if inputs to model are fixed size; otherwise lot of computational overhead')
 
     parser.add_argument('--epochs', type=int, default=50, help='number of epochs to train for')
