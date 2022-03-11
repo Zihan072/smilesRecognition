@@ -101,7 +101,7 @@ class MSTS:
         if torch.cuda.device_count() > 1 and self._device != 'cpu':
             print("Let's use", torch.cuda.device_count(), "GPUs!")
             self._encoder = nn.DataParallel(self._encoder)
-        self._criterion = nn.CrossEntropyLoss().to(self._device, non_blocking=self._gpu_non_block, ignore_index=0)
+        self._criterion = nn.CrossEntropyLoss(ignore_index=0).to(self._device, non_blocking=self._gpu_non_block)
 
         if self.fp16:
             self.grad_scaler = torch.cuda.amp.GradScaler()
