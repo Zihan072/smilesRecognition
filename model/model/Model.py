@@ -139,9 +139,15 @@ class MSTS:
             # so we can have 2x more meory and computation is theoretically 2x faster
             with torch.cuda.amp.autocast(enabled=self.fp16):
                 imgs = self._encoder(imgs)
-                predictions, caps_sorted, decode_lengths, alphas, sort_ind = self._decoder(imgs, sequence, sequence_lens)
+                predictions, caps_sorted, decode_lengths, alphas, sort_index = self._decoder(imgs, sequence, sequence_lens)
 
                 targets = caps_sorted[:, 1:]
+
+                predictions.view(-1, predictions.size(-1))
+                targets = targets.view(-1)
+                non_pad_mask = torch.nonzero(targets.ne(0)).squeeze(1)
+                targets = targets.index_select(0, non_pad_mask)
+                predictions = predictions.index_select(0, non_pad_mask)
 
                 # Calculate accuracy
                 accr = self._accuracy_calcluator(predictions.detach().cpu().numpy(),

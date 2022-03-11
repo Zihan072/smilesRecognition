@@ -317,7 +317,7 @@ class DecoderWithAttention(nn.Module):
         h, c = self.init_hidden_state(encoder_out)  # (batch_size, decoder_dim)
 
         # set decode length by caption length - 1 because of omitting start token
-        decode_lengths = (caption_lengths - 1).tolist()
+        # decode_lengths = (caption_lengths - 1).tolist()
 
         # predictions = torch.zeros(batch_size, max(decode_lengths), vocab_size).to(self.device)
 
@@ -330,7 +330,7 @@ class DecoderWithAttention(nn.Module):
         alphas = list()
 
         # predict sequence
-        for t in range(max(decode_lengths)):
+        for t in range(seq_len - 1):
             #  note: all sequences have the same length, but some of them actually have pads (the tokens that we
             # don't want to process
             # batch_size_t = sum([l > t for l in decode_lengths])
@@ -364,4 +364,4 @@ class DecoderWithAttention(nn.Module):
 
         sort_ind = None
 
-        return predictions, encoded_captions, decode_lengths, alphas, sort_ind
+        return predictions, encoded_captions, decode_lengths, alphas, mask
