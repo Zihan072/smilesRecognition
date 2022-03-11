@@ -39,7 +39,13 @@ class Encoder(nn.Module):
             resnet = torchvision.models.efficientnet_b3(pretrained=True)
         elif model_type == 'efficientnetB7':
             resnet = torchvision.models.efficientnet_b7(pretrained=True)
-            self.projector = torch.nn.Linear(2560, 2048)
+            if tf_encoder > 0:
+                # if we have transformer encoders then we need to keep embed dim
+                self.projector = torch.nn.Linear(2560, embed_dim)
+            else:
+            # 4 * embed dim because this is the requirement for the init lstm function in the decoder
+               self.projector = torch.nn.Linear(2560, 4 * embed_dim)
+            #s   elf.projector = torch.nn.Linear(2560, 2048)
             #image: 600*600
 
         modules = list(resnet.children())[:-2]
@@ -65,12 +71,13 @@ class Encoder(nn.Module):
         # then we can tell pytorch to save memory by releasing the intermediate layers of the
         # efficient net
 
-        # this can help Zihan save memory when using the Transformer
+        # this can help to save memory when using the Transformer
         with torch.no_grad():
             out = self.resnet(images)  # (batch_size, 2048, image_size/32, image_size/32)
             out = self.adaptive_pool(out)  # (batch_size, 2048, encoded_image_size, encoded_image_size)
             out = out.permute(0, 2, 3, 1)  # (batch_size, encoded_image_size, encoded_image_size, 2048)
 
+#没看懂怎么叠加层的？？
         if self.tf_encoder > 0:
             b, w, h = out.size(0), out.size(1), out.size(2)
 

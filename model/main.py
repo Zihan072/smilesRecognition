@@ -22,7 +22,7 @@ def main():
     parser = argparse.ArgumentParser()
 
     parser.add_argument('--work_type', type=str, default='train', help="choose work type 'train' or 'test'")
-    parser.add_argument('--encoder_type', type=str, default='efficientnetB7', help="choose encoder model type 'efficientnetB2', wide_res', 'res', and 'resnext' ")
+    parser.add_argument('--encoder_type', type=str, default='efficientnetB2', help="choose encoder model type 'efficientnetB2', wide_res', 'res', and 'resnext' ")
     parser.add_argument('--seed', type=int, default=1, help="choose seed number")
     parser.add_argument('--tf_encoder', type=int, default=0, help="the number of transformer layers")
     parser.add_argument('--decode_length', type=int, default=140, help='length of decoded SMILES sequence')

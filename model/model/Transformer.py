@@ -19,7 +19,7 @@ from typing import Optional, Tuple
 # class TransformerEncoderLayer(Module):
 
 
-'''
+
 class TransformerEncoderLayer(Module):
     r"""TransformerEncoderLayer is made up of self-attn and feedforward network.
     This standard encoder layer is based on the paper "Attention Is All You Need".
@@ -638,4 +638,3 @@ def _no_grad_fill_(tensor, val):
     with torch.no_grad():
         return tensor.fill_(val)
 
-'''
