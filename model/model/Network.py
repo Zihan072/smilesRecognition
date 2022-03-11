@@ -227,6 +227,7 @@ class PredictiveDecoder(nn.Module):
         return predictions
 
 
+# This module is used during training
 class DecoderWithAttention(nn.Module):
     """
     Decoder network with attention network used for training
@@ -260,7 +261,10 @@ class DecoderWithAttention(nn.Module):
         self.init_c = nn.Linear(encoder_dim, decoder_dim)  # linear layer to find initial cell state of LSTMCell
         self.f_beta = nn.Linear(decoder_dim, encoder_dim)  # linear layer to create a sigmoid-activated gate
         self.sigmoid = nn.Sigmoid()
+
+        # output layer
         self.fc = nn.Linear(decoder_dim, vocab_size)  # linear layer to find scores over vocabulary
+
         self.init_weights()  # initialize some layers with the uniform distribution
 
     def init_weights(self):
@@ -294,9 +298,17 @@ class DecoderWithAttention(nn.Module):
         encoder_out = encoder_out.view(batch_size, -1, encoder_dim)  # (batch_size, num_pixels, encoder_dim)
         num_pixels = encoder_out.size(1)
 
-        caption_lengths, sort_ind = caption_lengths.squeeze(1).sort(dim=0, descending=True)
-        encoder_out = encoder_out[sort_ind]
-        encoded_captions = encoded_captions[sort_ind]
+        # here the author tries to sort the sequences based on length
+        seq_len = encoded_captions.size(0)
+        # caption_lengths, sort_ind = caption_lengths.squeeze(1).sort(dim=0, descending=True)
+        # encoder_out = encoder_out[sort_ind]
+        # encoded_captions = encoded_captions[sort_ind]
+        # unfortunately this op is quite slow -> can improve
+        # Quan's alternative solution:
+        # mask = encoder_out.new_zeros(batch_size, seq_len)
+
+        # eq means that we find the positions in the encoded captions that are 0
+        mask = encoded_captions.eq(0)
 
         # embedding transformed sequence for vector
         embeddings = self.embedding(encoded_captions)  # (batch_size, max_caption_length, embed_dim)
@@ -307,25 +319,49 @@ class DecoderWithAttention(nn.Module):
         # set decode length by caption length - 1 because of omitting start token
         decode_lengths = (caption_lengths - 1).tolist()
 
-        predictions = torch.zeros(batch_size, max(decode_lengths), vocab_size).to(self.device)
-        alphas = torch.zeros(batch_size, max(decode_lengths), num_pixels).to(self.device)
+        # predictions = torch.zeros(batch_size, max(decode_lengths), vocab_size).to(self.device)
+
+        # alpha is the attention map between generation and the images for every time step
+        # for every "time step" it will have the attention weights
+        # we can look at this to visualize how the model looks at the input during training/generation
+        # alphas = torch.zeros(batch_size, max(decode_lengths), num_pixels).to(self.device)
+
+        predictions = list()
+        alphas = list()
 
         # predict sequence
         for t in range(max(decode_lengths)):
-            batch_size_t = sum([l > t for l in decode_lengths])
+            #  note: all sequences have the same length, but some of them actually have pads (the tokens that we
+            # don't want to process
+            # batch_size_t = sum([l > t for l in decode_lengths])
 
-            attention_weighted_encoding, alpha = self.attention(encoder_out[:batch_size_t], h[:batch_size_t])
+            attention_weighted_encoding, alpha = self.attention(encoder_out, h)
+            # attention_weighted_encoding, alpha = self.attention(encoder_out[:batch_size_t], h[:batch_size_t])
+            # so he uses "indexing/slicing" to deselect the pad tokens
+            # unfortunately this op is also VERY SLOW -> room for improvement
 
-            gate = self.sigmoid(self.f_beta(h[:batch_size_t]))  # gating scalar, (batch_size_t, encoder_dim)
+            gate = self.sigmoid(self.f_beta(h))  # gating scalar, (batch_size_t, encoder_dim)
             attention_weighted_encoding = gate * attention_weighted_encoding
 
             h, c = self.decode_step(
-                torch.cat([embeddings[:batch_size_t, t, :], attention_weighted_encoding], dim=1),
-                (h[:batch_size_t], c[:batch_size_t]))  # (batch_size_t, decoder_dim)
+                torch.cat([embeddings[:, t, :], attention_weighted_encoding], dim=1),
+                (h, c))  # (batch_size_t, decoder_dim)
 
             preds = self.fc(self.dropout(h))  # (batch_size_t, vocab_size)
-            predictions[:batch_size_t, t, :] = preds
+            # predictions[:batch_size_t, t, :] = preds
 
-            alphas[:batch_size_t, t, :] = alpha
+            # alphas[:batch_size_t, t, :] = alpha
+            predictions.append(preds)
+            alphas.append(alpha)
+
+        # we collect the predictions and alphas
+        predictions = torch.stack(predictions).transpose(0, 1).contiguous()
+        alphas = torch.stack(predictions).transpose(0, 1).contiguous()
+
+        # and we just need to mask the values of the padded positions to 0
+        predictions = predictions.masked_fill_(mask.unsqueeze(-1), 0)
+        alphas = predictions.masked_fill_(alphas.unsqueeze(-1), 0)
+
+        sort_ind = None
 
         return predictions, encoded_captions, decode_lengths, alphas, sort_ind
