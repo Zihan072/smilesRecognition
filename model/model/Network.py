@@ -361,7 +361,7 @@ class DecoderWithAttention(nn.Module):
 
         # and we just need to mask the values of the padded positions to 0
         predictions = predictions.masked_fill_(mask.unsqueeze(-1), 0)
-        alphas = alphas.masked_fill_(alphas.unsqueeze(-1), 0)
+        alphas = alphas.masked_fill_(mask.unsqueeze(-1), 0)
 
         sort_ind = None
 
