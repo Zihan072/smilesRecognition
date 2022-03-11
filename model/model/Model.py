@@ -101,7 +101,7 @@ class MSTS:
         if torch.cuda.device_count() > 1 and self._device != 'cpu':
             print("Let's use", torch.cuda.device_count(), "GPUs!")
             self._encoder = nn.DataParallel(self._encoder)
-        self._criterion = nn.CrossEntropyLoss().to(self._device, non_blocking=self._gpu_non_block)
+        self._criterion = nn.CrossEntropyLoss().to(self._device, non_blocking=self._gpu_non_block, ignore_index=0)
 
         if self.fp16:
             self.grad_scaler = torch.cuda.amp.GradScaler()
@@ -145,9 +145,10 @@ class MSTS:
 
                 predictions.contiguous().view(-1, predictions.size(-1))
                 targets = targets.contiguous().view(-1)
+                print(targets.size(), predictions.size())
 
                 non_pad_mask = torch.nonzero(targets.ne(0)).squeeze(1)
-
+                #
                 targets = targets.index_select(0, non_pad_mask)
                 predictions = predictions.index_select(0, non_pad_mask)
 
@@ -156,8 +157,8 @@ class MSTS:
                                                  targets.detach().cpu().numpy())
                 mean_accuracy = mean_accuracy + (accr - mean_accuracy) / (i + 1)
 
-                predictions = pack_padded_sequence(predictions, decode_lengths, batch_first=True).data
-                targets = pack_padded_sequence(targets, decode_lengths, batch_first=True).data
+                # predictions = pack_padded_sequence(predictions, decode_lengths, batch_first=True).data
+                # targets = pack_padded_sequence(targets, decode_lengths, batch_first=True).data
 
                 # Calculate loss
                 loss = self._criterion(predictions, targets)
@@ -238,8 +239,8 @@ class MSTS:
 
                 mean_accuracy = mean_accuracy + (accr - mean_accuracy) / (i + 1)
 
-                predictions = pack_padded_sequence(predictions, decode_lengths, batch_first=True).data
-                targets = pack_padded_sequence(targets, decode_lengths, batch_first=True).data
+                # predictions = pack_padded_sequence(predictions, decode_lengths, batch_first=True).data
+                # targets = pack_padded_sequence(targets, decode_lengths, batch_first=True).data
 
                 loss = self._criterion(predictions, targets)
                 mean_loss = mean_loss + (loss.detach().item() - mean_loss) / (i + 1)
