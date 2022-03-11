@@ -308,7 +308,7 @@ class DecoderWithAttention(nn.Module):
         # mask = encoder_out.new_zeros(batch_size, seq_len)
 
         # eq means that we find the positions in the encoded captions that are 0
-        mask = encoded_captions.eq(0)
+        mask = encoded_captions[:, :-1].eq(0)
 
         # embedding transformed sequence for vector
         embeddings = self.embedding(encoded_captions)  # (batch_size, max_caption_length, embed_dim)
