@@ -143,9 +143,9 @@ class MSTS:
 
                 targets = caps_sorted[:, 1:]
 
-                predictions.contiguous().view(-1, predictions.size(-1))
+                predictions = predictions.contiguous().view(-1, predictions.size(-1))
                 targets = targets.contiguous().view(-1)
-                print(targets.size(), predictions.size())
+                # print(targets.size(), predictions.size())
 
                 non_pad_mask = torch.nonzero(targets.ne(0)).squeeze(1)
                 #
@@ -228,7 +228,7 @@ class MSTS:
                 predictions, caps_sorted, decode_lengths, _, _ = self._decoder(imgs, sequence, sequence_lens)
                 targets = caps_sorted[:, 1:]
 
-                predictions.contiguous().view(-1, predictions.size(-1))
+                predictions = predictions.contiguous().view(-1, predictions.size(-1))
                 targets = targets.contiguous().view(-1)
                 non_pad_mask = torch.nonzero(targets.ne(0)).squeeze(1)
                 targets = targets.index_select(0, non_pad_mask)
