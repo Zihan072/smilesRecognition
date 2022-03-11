@@ -299,7 +299,7 @@ class DecoderWithAttention(nn.Module):
         num_pixels = encoder_out.size(1)
 
         # here the author tries to sort the sequences based on length
-        seq_len = encoded_captions.size(0)
+        seq_len = encoded_captions.size(1)
         # caption_lengths, sort_ind = caption_lengths.squeeze(1).sort(dim=0, descending=True)
         # encoder_out = encoder_out[sort_ind]
         # encoded_captions = encoded_captions[sort_ind]
