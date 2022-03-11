@@ -153,7 +153,7 @@ class MSTS:
                 predictions = predictions.index_select(0, non_pad_mask)
 
                 # Calculate accuracy
-                accr = self._accuracy_calcluator(predictions.detach().cpu().numpy(),
+                accr = self._accuracy_calculator(predictions.detach().cpu().numpy(),
                                                  targets.detach().cpu().numpy())
                 mean_accuracy = mean_accuracy + (accr - mean_accuracy) / (i + 1)
 
@@ -234,7 +234,7 @@ class MSTS:
                 targets = targets.index_select(0, non_pad_mask)
                 predictions = predictions.index_select(0, non_pad_mask)
 
-                accr = self._accuracy_calcluator(predictions.detach().cpu().numpy(),
+                accr = self._accuracy_calculator(predictions.detach().cpu().numpy(),
                                                  targets.detach().cpu().numpy())
 
                 mean_accuracy = mean_accuracy + (accr - mean_accuracy) / (i + 1)
