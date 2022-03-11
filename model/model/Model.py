@@ -145,7 +145,9 @@ class MSTS:
 
                 predictions.contiguous().view(-1, predictions.size(-1))
                 targets = targets.contiguous().view(-1)
+
                 non_pad_mask = torch.nonzero(targets.ne(0)).squeeze(1)
+
                 targets = targets.index_select(0, non_pad_mask)
                 predictions = predictions.index_select(0, non_pad_mask)
 

@@ -309,9 +309,10 @@ class DecoderWithAttention(nn.Module):
 
         # eq means that we find the positions in the encoded captions that are 0
         mask = encoded_captions[:, :-1].eq(0)
+        decoder_input = encoded_captions[:, :-1]
 
         # embedding transformed sequence for vector
-        embeddings = self.embedding(encoded_captions)  # (batch_size, max_caption_length, embed_dim)
+        embeddings = self.embedding(decoder_input)  # (batch_size, max_caption_length, embed_dim)
 
         # initialize hidden state and cell state of LSTM cell
         h, c = self.init_hidden_state(encoder_out)  # (batch_size, decoder_dim)
@@ -328,10 +329,10 @@ class DecoderWithAttention(nn.Module):
 
         predictions = list()
         alphas = list()
-        decode_lengths = None
+        decode_length = embeddings.size(1)
 
         # predict sequence
-        for t in range(seq_len - 1):
+        for t in range(decode_length):
             #  note: all sequences have the same length, but some of them actually have pads (the tokens that we
             # don't want to process
             # batch_size_t = sum([l > t for l in decode_lengths])
@@ -365,4 +366,6 @@ class DecoderWithAttention(nn.Module):
 
         sort_ind = None
 
-        return predictions, encoded_captions, decode_lengths, alphas, mask
+        assert(predictions.size(1) == (encoded_captions.size(1) - 1))
+
+        return predictions, encoded_captions, None, alphas, mask
