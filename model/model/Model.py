@@ -430,6 +430,12 @@ class MSTS:
             self._emb_dim, self._attention_dim, self._decoder_dim, self._dropout, self._batch_size)
         return name
 
+    def _accuracy_calculator(self, prediction: np.array, target: np.array):
+        prediction = np.argmax(prediction, 1)
+        accr = np.array(prediction == target, dtype=np.int).mean()
+
+        return accr
+
     def _accuracy_calcluator(self, prediction: np.array, target: np.array):
         prediction = np.argmax(prediction, 2)
         l_p = prediction.shape[1]
