@@ -328,6 +328,7 @@ class DecoderWithAttention(nn.Module):
 
         predictions = list()
         alphas = list()
+        decode_lengths = None
 
         # predict sequence
         for t in range(seq_len - 1):
@@ -356,11 +357,11 @@ class DecoderWithAttention(nn.Module):
 
         # we collect the predictions and alphas
         predictions = torch.stack(predictions).transpose(0, 1).contiguous()
-        alphas = torch.stack(predictions).transpose(0, 1).contiguous()
+        alphas = torch.stack(alphas).transpose(0, 1).contiguous()
 
         # and we just need to mask the values of the padded positions to 0
         predictions = predictions.masked_fill_(mask.unsqueeze(-1), 0)
-        alphas = predictions.masked_fill_(alphas.unsqueeze(-1), 0)
+        alphas = alphas.masked_fill_(alphas.unsqueeze(-1), 0)
 
         sort_ind = None
 
