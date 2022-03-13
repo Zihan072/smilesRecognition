@@ -81,9 +81,9 @@ def making_data(group):
             # Making directory by the length of sequnece and saving
             # making filename as "the length of smiels"_train_"index"
             # ex) 0020_train_4
-            dir_name = len(filtered_df['SMILES'][idx])
-            dir_name = str(dir_name).zfill(4)
-            os.makedirs(os.path.join(path, dir_name), exist_ok=True)
+            #dir_name = len(filtered_df['SMILES'][idx])
+            #dir_name = str(dir_name).zfill(4)
+            #os.makedirs(os.path.join(path, dir_name), exist_ok=True)
             img_full_name = os.path.join(path, img_name)
             file_writer.write(img_name + "," + smiles + "\n")
             smile_plt.save(img_full_name)  # save the image in png
