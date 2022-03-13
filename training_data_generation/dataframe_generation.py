@@ -45,7 +45,7 @@ new_path = 'train_dataset_3rd_5M/'
 max_length = 100
 count = 0
 
-for i in tqdm(range(n_images)) :
+for i in tqdm(range(n_images)):
     line = f.readline()
     if line ==  "": break
     # a.append(line)
