@@ -48,9 +48,9 @@ file_writer.write("file_name,SMILES"+"\n")
 
 @click.command()
 @click.option('--group', default=1, help='group number')
-
+group_total = 5
 def making_data(group):
-    for i in range(5):
+    for i in range(group_total):
         print("group number:", group)
 
         filtered_df = pd.read_csv(data_path +'/filtered_df_group{}.csv'.format(group))
