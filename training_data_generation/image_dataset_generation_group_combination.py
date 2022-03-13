@@ -50,7 +50,7 @@ file_writer.write("file_name,SMILES"+"\n")
 @click.option('--group', default=1, help='group number')
 group_total = 5
 def making_data(group):
-    for i in range(group_total):
+    for i in tqdm(range(group_total)):
         print("group number:", group)
 
         filtered_df = pd.read_csv(data_path +'/filtered_df_group{}.csv'.format(group))
@@ -60,7 +60,7 @@ def making_data(group):
         #print("The first line of csv file:", filtered_df[:][:1])
         group += 1
         # for idx in tqdm(range(len(filtered_df[filtered_df['group'] == group]))):
-        for idx in tqdm(range(data_len)):
+        for idx in range(data_len):
             # idx += 3700000 * (group-1)
             # print('idx:',idx, end='\r')
             # smiles = filtered_df[filtered_df['group'] == group]['SMILES'][idx]
