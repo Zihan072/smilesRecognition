@@ -26,6 +26,7 @@ def train_validation_split_df(data_dir,train_csv_dir,random_seed,train_size=0.8)
     :param data_dir: Data directory
     :param train_csv_dir: Directory of train csv directory
     """
+
     df = pd.read_csv(train_csv_dir)
 
     # Create Necessary Columns
@@ -163,6 +164,7 @@ def create_input_files(train_dir,train_pickle_dir,output_folder,min_token_freq,m
             for i, path in enumerate(tqdm(impaths)):
                 try:
                     # Read images
+                    #print(impaths[i])
                     img = Image.open(impaths[i])
                     img= img.resize((256,256))
                     img = np.array(img)
@@ -215,17 +217,22 @@ def create_test_files(submission_csv_dir,test_dir,output_folder):
     print('Creating TEST FILES')
     submission_df =pd.read_csv(submission_csv_dir)
     test_image_paths = submission_df['file_name'].tolist()
+    print(test_dir)
 
     with h5py.File(output_folder / f"TEST_LG_IMAGES.hdf5", 'w') as h:
         # Create dataset inside HDF5 file to store images
         images = h.create_dataset('images', (len(test_image_paths), 3, 256, 256), dtype='uint8')
 
         print(f"\nReading TEST images and sequences, storing to file...\n")
-
+        #from tqdm.auto import tqdm
         for i, path in enumerate(tqdm(test_image_paths)):
             try:
                 # Read images
-                img = Image.open(test_dir / test_image_paths[i])
+                # print("checking image ....")
+                import os
+                test_file = os.path.join(test_dir, test_image_paths[i])
+               # print(test_file)
+                img = Image.open(test_file)
                 img= img.resize((256,256))
                 img = np.array(img)
                 img = np.rollaxis(img, 2, 0)

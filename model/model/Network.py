@@ -25,6 +25,7 @@ class Encoder(nn.Module):
             resnet = torchvision.models.resnext101_32x8d(pretrained=True)  # pretrained ImageNet wide_ResNet-101_2
         elif model_type == 'efficientnetB0':
             resnet = torchvision.models.efficientnet_b0(pretrained=True)  # pretrained ImageNet efficientnet_b0
+            self.projector = torch.nn.Linear(1280, 2048)
         elif model_type == 'efficientnetB2':
             resnet = torchvision.models.efficientnet_b2(pretrained=True)
 
@@ -104,7 +105,7 @@ class Encoder(nn.Module):
             # for example out = self.transformer_layer(out) ....
             if self.projector is not None:
                 out = self.projector(out)
-        #to do
+        # to do
         return out
 
     def fine_tune(self, fine_tune=True):
@@ -147,7 +148,7 @@ class PredictiveDecoder(nn.Module):
     """
     Decoder network with attention network used for decode smile sequence from image
     """
-    def __init__(self, attention_dim, embed_dim, decoder_dim, vocab_size, device, encoder_dim=512, dropout=1.):
+    def __init__(self, attention_dim, embed_dim, decoder_dim, vocab_size, device, encoder_dim=2048, dropout=1.):
         """
         :param attention_dim: input size of attention network
         :param embed_dim: input size of embedding network

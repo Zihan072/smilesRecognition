@@ -36,9 +36,14 @@ length = []
 #Even if only data with a length of 100 or less were generated previously, it was still a large amount of data,
 # so it was impossible to use all of them for training.
 #we extract 5 million as backup
-n_images = 5000000
-new_path = 'train_dataset_3rd_5M/'
+n_images = 10000000 #10M
+new_path = 'train_dataset_10M/'
 #14% of 1 million needs 200gb to store .npy files, very lagre and needs long time.
+
+if os.path.exists(new_path) == False:
+    os.mkdir(new_path)
+else:
+    pass
 
 
 #choose the length less than 100
@@ -68,7 +73,7 @@ for i in tqdm(range(n_images)):
 # Making dataframe
 df = pd.DataFrame(usage)
 df.columns = ["SMILES"]
-df['length'] = length
+#df['length'] = length
 df['group'] = 0
 
 # Oragainizing the group by the number of core
@@ -88,18 +93,14 @@ for i in range(1, 32) :
     g_filtered = filtered_df[filtered_df['group'] == i]
     g_filtered.to_csv(new_path + "filtered_df_group{}.csv".format(i)) 
 '''
-n_groups = 5
+n_groups = 10
 group_size = math.ceil(count / n_groups)
 #mat.ceil:
 for i in range(1, n_groups+1) :
     filtered_df = df
     filtered_df['group'][(i-1)* group_size : i * group_size] = i
 
-#new_path = 'train_dataset_3rd_10K/'
-if os.path.exists(new_path) == False:
-    os.mkdir(new_path)
-else:
-    pass
+
 
 for i in range(1, n_groups+1) :
     g_filtered = filtered_df[filtered_df['group'] == i]

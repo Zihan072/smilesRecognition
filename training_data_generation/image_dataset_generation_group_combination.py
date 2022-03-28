@@ -12,8 +12,10 @@ import numpy as np
 import pandas as pd
 from rdkit import Chem
 from rdkit.Chem import Draw
-from tqdm import tqdm
 import click
+
+#from tqdm import tqdm
+from tqdm.auto import tqdm # solve the problem of each iteration of progressbar starts a new line
 
 import warnings
 warnings.filterwarnings(action = 'ignore')
@@ -21,16 +23,16 @@ from rdkit import RDLogger
 RDLogger.DisableLog('rdApp.*')
 
 # path
-path = './new_images_5M/' # Saving new data
+path = './new_images_10M/' # Saving new data
 if not os.path.exists(path):
     os.mkdir(path)
 else:
     pass
 
 
-img_path = 'new_images_5M/train_img' # Saving new image
+img_path = path + '/train_img' # Saving new image
 
-data_path = 'train_dataset_3rd_5M'
+data_path = 'train_dataset_10M'
 if not os.path.exists(img_path):
     os.mkdir(img_path)
 else:
@@ -48,19 +50,20 @@ file_writer.write("file_name,SMILES"+"\n")
 
 @click.command()
 @click.option('--group', default=1, help='group number')
-group_total = 5
+
+
 def making_data(group):
-    for i in tqdm(range(group_total)):
+    for i in range(10):
         print("group number:", group)
 
         filtered_df = pd.read_csv(data_path +'/filtered_df_group{}.csv'.format(group))
         data_len = len(filtered_df)
-        #data_len = 5
+        #data_len = 3
         print("data length of this group:", data_len)
         #print("The first line of csv file:", filtered_df[:][:1])
         group += 1
         # for idx in tqdm(range(len(filtered_df[filtered_df['group'] == group]))):
-        for idx in range(data_len):
+        for idx in tqdm(range(data_len)):
             # idx += 3700000 * (group-1)
             # print('idx:',idx, end='\r')
             # smiles = filtered_df[filtered_df['group'] == group]['SMILES'][idx]

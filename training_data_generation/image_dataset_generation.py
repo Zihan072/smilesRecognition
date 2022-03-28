@@ -21,16 +21,16 @@ from rdkit import RDLogger
 RDLogger.DisableLog('rdApp.*')
 
 # path
-path_all = './new_images_3rd_1M/' # Saving new data
+path_all = './new_images_3rd_100/' # Saving new data
 if not os.path.exists(path_all):
     os.mkdir(path_all)
 else:
     pass
 
 
-path = 'new_images_3rd_1M/train_img_group1' # Saving new image
+path = path_all + '/train_img' # Saving new image
 
-data_path = 'train_dataset_3rd_5M'
+data_path = 'train_dataset_3rd_100'
 if not os.path.exists(path):
     os.mkdir(path)
 else:
@@ -42,7 +42,7 @@ else:
 # ex) 111307682 / 31 = 3700000
 # The number of core can be different by each environment
 
-file_writer = open("new_images_3rd_1M/train_5M_group1.csv", 'w')
+file_writer = open(path_all + "train.csv", 'w')
 file_writer.write("file_name,SMILES"+"\n")
 
 

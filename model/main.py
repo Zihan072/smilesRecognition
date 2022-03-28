@@ -14,7 +14,6 @@ from utils import logger, make_directory, load_reversed_token_map, smiles_name_p
 
 def main():
     start_time = time.time()
-    #？？？
 
     smiles_name_print()
     #？？？
@@ -35,7 +34,7 @@ def main():
     parser.add_argument('--fp16', type=str2bool, default=True, help='Use half-precision/mixed precision training')
     parser.add_argument('--cudnn_benchmark', type=str2bool, default=True, help='set to true only if inputs to model are fixed size; otherwise lot of computational overhead')
 
-    parser.add_argument('--epochs', type=int, default=50, help='number of epochs to train for')
+    parser.add_argument('--epochs', type=int, default=60, help='number of epochs to train for')
     parser.add_argument('--batch_size', type=int, default=256, help='batch size')
     parser.add_argument('--workers', type=int, default=8, help='for data-loading; right now, only 1 works with h5py')
     parser.add_argument('--encoder_lr', type=float, default=1e-4, help='learning rate for encoder if fine-tuning')
@@ -97,7 +96,7 @@ def main():
     elif config.work_type == 'single_test':
         if not config.test_file_path == None:
 
-            submission = pd.read_csv('utils/sample_submission.csv')
+            submission = pd.read_csv('/cvhci/temp/zihanchen/data/DACON_SMILES_data/sample_submission.csv')
             reversed_token_map = load_reversed_token_map(reversed_token_map_dir)
             data_list = os.listdir(config.test_file_path)
 
@@ -110,11 +109,13 @@ def main():
         else:
             print('the test file path is none')
 
+
+
     elif config.work_type == 'ensemble_test':
         ray.init()
         if not config.test_file_path == None:
 
-            submission = pd.read_csv('utils/sample_submission.csv')
+            submission = pd.read_csv('./sample_submission.csv')
             reversed_token_map = load_reversed_token_map(reversed_token_map_dir)
             data_list = os.listdir(config.test_file_path)
 
