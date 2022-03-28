@@ -5,6 +5,7 @@ import torch.optim
 import torch.utils.data
 from torch import nn
 from torch.nn.utils.rnn import pack_padded_sequence
+from utils import logger
 
 from PIL import Image
 
@@ -100,7 +101,8 @@ class MSTS:
                                                    lr=self._encoder_lr) if self._fine_tune_encoder else None
         if torch.cuda.device_count() > 1 and self._device != 'cpu':
             print("Let's use", torch.cuda.device_count(), "GPUs!")
-            self._encoder = nn.DataParallel(self._encoder)
+            self._encoder = nn.DataParallel(self._encoder) # model will become model.module -> all keys will have module in there
+            # solution: use 2 gpus in testing or convert the name back to no module.
         self._criterion = nn.CrossEntropyLoss().to(self._device, non_blocking=self._gpu_non_block)
 
         if self.fp16:
@@ -123,7 +125,7 @@ class MSTS:
 
         total_image_processed = 0
         start_time = time.time()  # record the starting moment when we start training
-        log_step = 50  # we will print out the speed every 200 training steps
+        log_step = 100  # we will print out the speed every 200 training steps
         total_batches = len(train_loader)
 
         #TODO: measuring training speed
@@ -189,6 +191,7 @@ class MSTS:
                 training_time = str(datetime.timedelta(seconds=int(elapse)))
                 print("Iteration %d/%d ; mean_loss %.6f ; mean_accuracy %.5f ; img_per_sec %6.2f ; time: %s"
                       % (i, total_batches, mean_loss, mean_accuracy, img_per_sec, training_time))
+                #logger([mean_loss, mean_accuracy, img_per_sec, training_time])
 
         # after finishing training the epoch
         end_time = time.time()
@@ -196,6 +199,7 @@ class MSTS:
         training_time = str(datetime.timedelta(seconds=int(elapse)))
         print("mean_loss %.6f ; mean_accuracy %.5f ; img_per_sec %6.2f; time: %s"
              % (mean_loss, mean_accuracy, img_per_sec, training_time))
+        #logger([mean_loss, mean_accuracy, img_per_sec, training_time])
 
 
 
@@ -233,7 +237,7 @@ class MSTS:
 
         return mean_loss, mean_accuracy
 
-    def model_test(self, submission, data_list, reversed_token_map, transform):
+    def model_test(self, submission, data_list, reversed_token_map, transform, labels=None):
         """
         single model test function
         :param submission: submission file
@@ -259,9 +263,16 @@ class MSTS:
             if self.is_smiles(decoded_sequences):
                 fault_counter += 1
 
-
             print('{} sequence:, {}'.format(i, decoded_sequences))
             print('decode_time:', time.time() - start_time)
+
+            #TODO: compute the Tanimoto similarity
+            if labels is not None:
+                label = labels[i]
+                SMILES_label = self.is_smiles(label)
+                # compute the Tanimoto sim between decoded sequences and label
+
+
 
             submission.loc[submission['file_name']== dat, 'SMILES'] = decoded_sequences
             del (predictions)

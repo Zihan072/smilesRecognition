@@ -2,6 +2,7 @@ import torch
 import math
 import torch.nn.functional as F
 import torch.nn as nn
+import numpy as np
 from time import time
 
 
@@ -124,6 +125,29 @@ class MultiHeadSelfAttention(nn.Module):
             return output
 
 
+class PositionalEncoding(nn.Module):
+    '''PE(pos,2i) =sin(pos/100002i/dmodel)
+       PE(pos,2i+1) =cos(pos/100002i/dmodel)
+    '''
+    def __init__(self, model_size, dropout=0.1, max_len=100):
+        super(PositionalEncoding, self).__init__()
+        self.dropout = nn.Dropout(p=dropout)
+
+        pe = torch.zeros(max_len, model_size)
+        position = torch.arange(0, max_len, dtype=torch.float).unsqueeze(1)
+        div_term = torch.exp(torch.arange(0, model_size, 2).float() * (-math.log(10000.0) / d_model))
+        pe[:, 0::2] = torch.sin(position * div_term)
+        pe[:, 1::2] = torch.cos(position * div_term)
+        pe = pe.unsqueeze(0).transpose(0, 1)
+        self.register_buffer('pe', pe)
+
+    def forward(self, x):
+        '''
+        x: [seq_len, batch_size, model_size]
+        '''
+        x = x + self.pe[:x.size(0), :]
+        return self.dropout(x)
+
 # implements Transformer Encoder Layer
 class TransformerEncoderLayer(nn.Module):
 
@@ -187,6 +211,76 @@ class TransformerEncoderLayer(nn.Module):
 
         return x
 
+#Z
+# implements Transformer Decoder Layer
+class TransformerDecoderLayer(nn.Module):
+    def __init__(self, model_size=512, n_heads=8, dropout=0.1):
+        super(TransformerDecoderLayer, self).__init__()
+
+        # assign attributes to the class instance (self)
+        # it allows the instance (self) to re-access these numbers later if necessary
+        self.model_size = model_size
+        self.n_heads = n_heads
+
+        # a transformer decoder layer has 4 main components:
+        # Masked multihead-self-attentio, multihead-self-attention, 3x layer norm and feed-forward neural net
+
+        # batch norm is very similar but it takes the average over the batch dimension
+        # (not the channel dimension as in layer norm)
+        self.batch_norm = nn.LayerNorm(model_size, eps=1e-05, elementwise_affine=True)
+
+        # each layer has two sets of parameters:
+        self.fc1 = nn.Linear(self.model_size, self.model_size * 4)
+        # the intermediate layer is larger the "model size" -> in some paper, this layer is called memory
+        # so larger memory is better
+        self.fc2 = nn.Linear(self.model_size * 4, self.model_size)
+
+        # multihead attention
+        self.enc_self_attn = MultiHeadSelfAttention(self.model_size, self.n_heads)
+        self.dec_self_attn = MultiHeadSelfAttention(self.model_size, self.n_heads)
+        self.dropout = nn.Dropout(dropout)
+
+    def forward(self, dec_inputs, enc_outputs, dec_self_attn_mask, dec_enc_attn_mask, impl='fast'):
+        '''
+        dec_inputs: [batch_size, tgt_len, model_size]
+        enc_outputs: [batch_size, src_len, model_size]
+        dec_self_attn_mask: [batch_size, tgt_len, tgt_len]
+        dec_enc_attn_mask: [batch_size, tgt_len, src_len]
+        '''
+
+        residual = dec_inputs
+        x = self.dec_self_attn(dec_inputs, impl=impl)
+        x = self.get_attn_subsequence_mask(x)
+        x = self.droput(x)
+        x = x + residual
+        x = self.batch_norm(x)
+
+        residual = x
+        x = self.dec_self_attn(enc_outputs+dec_inputs)
+        x = self.dropout(x)
+        x = x + residual
+        x = self.batch_norm(x)
+
+        residual = x
+        x = F.relu(self.fc1(x))
+        x = self.fc2(x)
+        x = self.dropout(x)  # apply dropout
+        x = x + residual
+        x = self.batch_norm(x)
+
+        return x
+
+
+
+def get_attn_subsequence_mask(seq):
+    '''
+    seq: [batch_size, tgt_len]
+    '''
+    attn_shape = [seq.size(0), seq.size(1), seq.size(1)]
+    subsequence_mask = np.triu(np.ones(attn_shape), k=1) # Upper triangular matrix
+    subsequence_mask = torch.from_numpy(subsequence_mask).byte()
+    return subsequence_mask # [batch_size, tgt_len, tgt_len]
+
 
 if __name__ == '__main__':
     # multihead_attn = MultiHeadSelfAttention(512, 64)
@@ -202,7 +296,7 @@ if __name__ == '__main__':
     dropout = 0.1
     # with dropout > 0: the outputs of each layer are randomly set to 0
     # and this process is randomly different run by run
-    # -> so the same network with dropout will have different results each run
+    # -> so the same network with dropout will have different  results each run
     transformer_encoder_layer = TransformerEncoderLayer(512, 64, dropout)
 
     # this command will copy all modules to cuda, including the layer norms (they were initialized in CPU)
