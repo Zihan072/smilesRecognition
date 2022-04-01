@@ -282,7 +282,15 @@ class DecoderWithAttention(nn.Module):
         c = self.init_c(mean_encoder_out)
         return h, c
 
-    def forward(self, encoder_out, encoded_captions, caption_lengths):
+    def forward(self, encoder_out, encoded_captions=None, caption_lengths=None,
+                mode='teacher_forcing', decode_lengths=70):
+
+        if mode == 'teacher_forcing':
+            return self.forward_teacher_forcing(encoder_out, encoded_captions, caption_lengths)
+        elif mode == 'generation':
+            return self.predict(encoder_out, decode_lengths=decode_lengths)
+
+    def forward_teacher_forcing(self, encoder_out, encoded_captions, caption_lengths):
         """
         :param encoder_out: output of encoder network
         :param encoded_captions: transformed sequence from character to integer
@@ -330,3 +338,213 @@ class DecoderWithAttention(nn.Module):
             alphas[:batch_size_t, t, :] = alpha
 
         return predictions, encoded_captions, decode_lengths, alphas, sort_ind
+
+    def predict(self, encoder_out, decode_lengths=70):
+        batch_size = encoder_out.size(0)
+        encoder_dim = encoder_out.size(-1)
+        vocab_size = self.vocab_size
+
+        encoder_out = encoder_out.view(batch_size, -1, encoder_dim)  # (batch_size, num_pixels, encoder_dim)
+        num_pixels = encoder_out.size(1)
+
+        # embed start tocken for LSTM input
+        start_tockens = torch.ones(batch_size, dtype=torch.long).to(self.device) * 68
+        embeddings = self.embedding(start_tockens)
+
+        # initialize hidden state and cell state of LSTM cell
+        h, c = self.init_hidden_state(encoder_out)  # (batch_size, decoder_dim)
+
+        predictions = torch.zeros(batch_size, decode_lengths, vocab_size).to(self.device)
+
+        # predict sequence
+        for t in range(decode_lengths):
+            attention_weighted_encoding, alpha = self.attention(encoder_out, h)
+
+            gate = self.sigmoid(self.f_beta(h))  # gating scalar, (batch_size_t, encoder_dim)
+            attention_weighted_encoding = gate * attention_weighted_encoding
+
+            h, c = self.decode_step(
+                torch.cat([embeddings, attention_weighted_encoding], dim=1),
+                (h, c))  # (batch_size_t, decoder_dim)
+
+            preds = self.fc(self.dropout(h))  # (batch_size_t, vocab_size)
+
+            predictions[:, t, :] = preds
+            if np.argmax(preds.detach().cpu().numpy()) == 69:
+                break
+            embeddings = self.embedding(torch.argmax(preds, -1))
+
+        return predictions
+
+
+import math
+class PositionalEncoding(nn.Module):
+    '''PE(pos,2i) =sin(pos/100002i/dmodel)
+       PE(pos,2i+1) =cos(pos/100002i/dmodel)
+    '''
+    def __init__(self, model_size, dropout=0.1, max_len=100):
+        super(PositionalEncoding, self).__init__()
+        self.dropout = nn.Dropout(p=dropout)
+
+        pe = torch.zeros(max_len, model_size)
+        position = torch.arange(0, max_len, dtype=torch.float).unsqueeze(1)
+        div_term = torch.exp(torch.arange(0, model_size, 2).float() * (-math.log(10000.0) / model_size))
+        pe[:, 0::2] = torch.sin(position * div_term)
+        pe[:, 1::2] = torch.cos(position * div_term)
+        # pe = pe.unsqueeze(0).transpose(0, 1)
+
+        # so pe should have size [max_len, 1, model_size]
+        self.register_buffer('pe', pe)
+
+    def forward(self, x):
+        '''
+        x: [ batch_size, seq_len, model_size]
+        '''
+        seq_len = x.size(1)
+        x = x + self.pe[:seq_len, :].unsqueeze(0)
+        return self.dropout(x)
+
+
+# def get_attn_subsequence_mask(seq):
+#     '''
+#     seq: [batch_size, tgt_len]
+#     '''
+#     attn_shape = [seq.size(0), seq.size(1), seq.size(1)]
+#     subsequence_mask = np.triu(np.ones(attn_shape), k=1) # Upper triangular matrix
+#     subsequence_mask = torch.from_numpy(subsequence_mask).byte()
+#     return subsequence_mask # [batch_size, tgt_len, tgt_len]
+
+
+class TransformerDecoder(nn.Module):
+    """
+    Decoder network with attention network used for training
+    """
+
+    def __init__(self, embed_dim, decoder_dim, vocab_size, device,
+                 encoder_dim=2048, dropout=0.5, n_layers=1, max_len=200):
+        """
+        :param embed_dim: input size of embedding network
+        :param decoder_dim: input size of decoder network
+        :param vocab_size: total number of characters used in training
+        :param encoder_dim: input size of encoder network
+        :param dropout: dropout rate
+        """
+        super(TransformerDecoder, self).__init__()
+
+        self.encoder_dim = encoder_dim
+        self.embed_dim = embed_dim
+        self.decoder_dim = decoder_dim
+        self.vocab_size = vocab_size
+        self.dropout = dropout
+        self.device = device
+        self.heads = heads
+        assert embed_dim == decoder_dim, "For the Transformer, embed dim needs to be the same with decoder_rim"
+
+        # self.attention = Attention(encoder_dim, decoder_dim, attention_dim)  # attention network
+
+        self.embedding = nn.Embedding(vocab_size, embed_dim)  # embedding layer
+        self.dropout = nn.Dropout(p=self.dropout)
+        self.positional_encoder = PositionalEncoding(embed_dim, dropout=dropout, max_len=max_len)
+        self.layers = nn.ModuleList()
+        from modules.TransformerLayers import TransformerDecoderLayer
+        for _ in range(n_layers):
+            # its generally accepted that the head size is 64
+            # so the number of heads is just decoder dim dividing by 64
+            n_heads = decoder_dim // 64
+            self.layers.append(TransformerDecoderLayer(self.decoder_dim, n_heads, self.dropout))
+
+        # self.decode_step = nn.LSTMCell(embed_dim + encoder_dim, decoder_dim, bias=True)  # decoding LSTMCell
+        # self.init_h = nn.Linear(encoder_dim, decoder_dim)  # linear layer to find initial hidden state of LSTMCell
+        self.init_c = nn.Linear(encoder_dim, decoder_dim)  # linear layer to find initial cell state of LSTMCell
+        # self.f_beta = nn.Linear(decoder_dim, encoder_dim)  # linear layer to create a sigmoid-activated gate
+        # self.sigmoid = nn.Sigmoid()
+        self.fc = nn.Linear(decoder_dim, vocab_size)  # linear layer to find scores over vocabulary
+        self.init_weights()  # initialize some layers with the uniform distribution
+
+    def init_weights(self):
+        self.embedding.weight.data.uniform_(-0.1, 0.1)
+
+    def forward(self, encoder_out, encoded_captions=None, caption_lengths=None,
+                mode='teacher_forcing', decode_lengths=70):
+
+        if mode == 'teacher_forcing':
+            return self.forward_teacher_forcing(encoder_out, encoded_captions, caption_lengths)
+        elif mode == 'generation':
+            return self.predict(encoder_out, decode_lengths=decode_lengths)
+
+    def forward_teacher_forcing(self, encoder_out, encoded_captions, caption_lengths):
+        """
+        :param encoder_out: output of encoder network
+        :param encoded_captions: transformed sequence from character to integer
+        :param caption_lengths: length of transformed sequence
+        """
+        batch_size = encoder_out.size(0)
+        encoder_dim = encoder_out.size(-1)
+        vocab_size = self.vocab_size
+
+        encoder_out = encoder_out.view(batch_size, -1, encoder_dim)  # (batch_size, num_pixels, encoder_dim)
+        num_pixels = encoder_out.size(1)
+
+        # map the dimension of the encoder_out from the CNN dimensions to decoder dimension
+        # we need to transpose because our transformer style is written in [T x B x H] (time-first) style
+        # so the decoder input, and encoder output need to have this layout before going into the Transformer
+        encoder_out = self.init_c(encoder_out).transpose(0, 1).contiguous()
+
+        caption_lengths, sort_ind = caption_lengths.squeeze(1).sort(dim=0, descending=True)
+        # encoder_out = encoder_out[sort_ind]
+        # encoded_captions = encoded_captions[sort_ind]
+
+        # embedding transformed sequence for vector
+        # the decoder input is the N-1 first element in the encoded captions
+        # for example the sequence is <bos> C C H H N H N N C H <eos>
+        # then input is <bos> C C H H N H N N C H
+        # the label is C C H H N H N N C H <eos>
+        decoder_input = encoded_captions[:, :-1]
+        embeddings = self.embedding(decoder_input)  # (batch_size, max_caption_length, embed_dim)
+        # after embedding, we add position encoding
+        embeddings = self.positional_encoder(embeddings)
+
+        # initialize hidden state and cell state of LSTM cell
+        # h, c = self.init_hidden_state(encoder_out)  # (batch_size, decoder_dim)
+
+        # set decode length by caption length - 1 because of omitting start token
+        decode_lengths = (caption_lengths - 1).tolist()
+
+        # predictions = torch.zeros(batch_size, max(decode_lengths), vocab_size).to(self.device)
+        alphas = torch.zeros(batch_size, max(decode_lengths), num_pixels).to(self.device)
+
+        # predict sequence
+        # for t in range(max(decode_lengths)):
+        #     batch_size_t = sum([l > t for l in decode_lengths])
+        #
+        #     attention_weighted_encoding, alpha = self.attention(encoder_out[:batch_size_t], h[:batch_size_t])
+        #
+        #     gate = self.sigmoid(self.f_beta(h[:batch_size_t]))  # gating scalar, (batch_size_t, encoder_dim)
+        #     attention_weighted_encoding = gate * attention_weighted_encoding
+        #
+        #     h, c = self.decode_step(
+        #         torch.cat([embeddings[:batch_size_t, t, :], attention_weighted_encoding], dim=1),
+        #         (h[:batch_size_t], c[:batch_size_t]))  # (batch_size_t, decoder_dim)
+        #
+        #     preds = self.fc(self.dropout(h))  # (batch_size_t, vocab_size)
+        #     predictions[:batch_size_t, t, :] = preds
+        #
+        #     alphas[:batch_size_t, t, :] = alpha
+
+        # first, transpose x to have [T x B x H] (same layout with encoder out]
+        x = embeddings.transpose(0, 1).contiguous()
+        seq_len = x.size(0)
+        self_attn_mask = torch.triu(x.new_ones(seq_len, seq_len), diagonal=1).byte()
+
+        # run the Transformer decoder
+        for i, layer in enumerate(self.layers):
+            x = layer(x, encoder_out, self_attn_mask, impl='fast')
+
+        predictions = self.fc(x).transpose(0, 1).contiguous()
+
+        return predictions, encoded_captions, decode_lengths, alphas, sort_ind
+
+    def predict(self, encoder_out, decode_lengths=70):
+
+        raise NotImplementedError
+

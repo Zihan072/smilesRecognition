@@ -24,6 +24,7 @@ def main():
     parser.add_argument('--encoder_type', type=str, default='efficientnetB2', help="choose encoder model type 'efficientnetB2', wide_res', 'res', and 'resnext' ")
     parser.add_argument('--seed', type=int, default=1, help="choose seed number")
     parser.add_argument('--tf_encoder', type=int, default=0, help="the number of transformer layers")
+    parser.add_argument('--tf_decoder', type=int, default=0, help="the number of transformer decoder layers")
     parser.add_argument('--decode_length', type=int, default=140, help='length of decoded SMILES sequence')
     parser.add_argument('--emb_dim', type=int, default=512, help='dimension of word embeddings')
     parser.add_argument('--attention_dim', type=int, default=512, help='dimension of attention linear layers')
