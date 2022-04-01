@@ -47,6 +47,7 @@ class MSTS:
         self._device = config.device
         self._gpu_non_block = config.gpu_non_block
         self.tf_encoder = config.tf_encoder
+        self.tf_decoder = config.tf_encoder
         self._cudnn_benchmark = config.cudnn_benchmark
 
         self._epochs = config.epochs
@@ -67,26 +68,33 @@ class MSTS:
         self._seed_everything(self._seed)
         self.fp16 = config.fp16
 
-        # define different decoder by work type
-        if self._work_type == 'train':
-            make_directory(self._model_save_path + '/' + self._model_name)
+        if self.tf_decoder > 0:
+            from .Network import TransformerDecoder
+            print("Create Transformer Decoder")
+            self._decoder = TransformerDecoder(self._emb_dim, self._decoder_dim, self._vocab_size,
+                                               self._device, dropout=self._dropout, n_layers=self.tf_decoder)
+        else:
             self._decoder = DecoderWithAttention(attention_dim=self._attention_dim,
                                                  embed_dim=self._emb_dim,
                                                  decoder_dim=self._decoder_dim,
                                                  vocab_size=self._vocab_size,
                                                  dropout=self._dropout,
                                                  device=self._device)
+
+        # define different decoder by work type
+        if self._work_type == 'train':
+            make_directory(self._model_save_path + '/' + self._model_name)
             self._decoder.to(self._device, non_blocking=self._gpu_non_block)
             self._decoder_optimizer = torch.optim.Adam(params=filter(lambda p: p.requires_grad,
                                                                      self._decoder.parameters()),
                                                        lr=self._decoder_lr)
         elif self._work_type == 'single_test':
-            self._decoder = PredictiveDecoder(attention_dim=self._attention_dim,
-                                              embed_dim=self._emb_dim,
-                                              decoder_dim=self._decoder_dim,
-                                              vocab_size=self._vocab_size,
-
-                                              device=self._device)
+            # self._decoder = PredictiveDecoder(attention_dim=self._attention_dim,
+            #                                   embed_dim=self._emb_dim,
+            #                                   decoder_dim=self._decoder_dim,
+            #                                   vocab_size=self._vocab_size,
+            #
+            #                                   device=self._device)
             self._decoder.to(self._device, non_blocking=self._gpu_non_block)
 
         self._encoder = Encoder(model_type=config.encoder_type,
@@ -201,8 +209,6 @@ class MSTS:
              % (mean_loss, mean_accuracy, img_per_sec, training_time))
         #logger([mean_loss, mean_accuracy, img_per_sec, training_time])
 
-
-
         return mean_loss, mean_accuracy
 
     def validation(self, val_loader):
@@ -256,7 +262,8 @@ class MSTS:
             imgs = transform(imgs).to(self._device)
 
             encoded_imgs = self._encoder(imgs.unsqueeze(0))
-            predictions = self._decoder(encoded_imgs, self._decode_length)
+            print("USING NEW PREDICTION CODE ...")
+            predictions = self._decoder(encoded_imgs, decode_lengths=self._decode_length, mode='generation')
 
             SMILES_predicted_sequence = list(torch.argmax(predictions.detach().cpu(), -1).numpy())[0]
             decoded_sequences = decode_predicted_sequences(SMILES_predicted_sequence, reversed_token_map)
@@ -266,13 +273,11 @@ class MSTS:
             print('{} sequence:, {}'.format(i, decoded_sequences))
             print('decode_time:', time.time() - start_time)
 
-            #TODO: compute the Tanimoto similarity
+            # TODO: compute the Tanimoto similarity
             if labels is not None:
                 label = labels[i]
                 SMILES_label = self.is_smiles(label)
                 # compute the Tanimoto sim between decoded sequences and label
-
-
 
             submission.loc[submission['file_name']== dat, 'SMILES'] = decoded_sequences
             del (predictions)
@@ -415,11 +420,18 @@ class MSTS:
         self._decoder.load_state_dict(
             torch.load('{}/decoder{}.pkl'.format(self._model_load_path, str(self._model_load_num)),
                        map_location=self._device)
-        ) 
-        self._encoder.load_state_dict(
-            torch.load('{}/encoder{}.pkl'.format(self._model_load_path, str(self._model_load_num)),
-                       map_location=self._device)
-        ) 
+        )
+
+        try:
+            self._encoder.load_state_dict(
+                torch.load('{}/encoder{}.pkl'.format(self._model_load_path, str(self._model_load_num)),
+                           map_location=self._device)
+            )
+        except RuntimeError as e:
+            self._encoder.module.load_state_dict(
+                torch.load('{}/encoder{}.pkl'.format(self._model_load_path, str(self._model_load_num)),
+                           map_location=self._device)
+            )
 
     def _model_name_maker(self):
         name = 'model-emb_dim_{}-attention_dim_{}-decoder_dim_{}-dropout_{}-batch_size_{}'.format(
