@@ -8,7 +8,7 @@ import ray
 
 from model.Model import MSTS
 from src.datasets import SmilesDataset, PNGSmileDataset
-from src.config import input_data_dir, base_file_name
+from src.config import input_data_dir, base_file_name, test_dir
 from utils import logger, make_directory, load_reversed_token_map, smiles_name_print, str2bool
 
 
@@ -47,7 +47,7 @@ def main():
     parser.add_argument('--model_save_path', type=str, default='graph_save', help='model save path')
     parser.add_argument('--model_load_path', type=str, default=None, help='model load path')
     parser.add_argument('--model_load_num', type=int, default=None, help='epoch number of saved model')
-    parser.add_argument('--test_file_path', type=str, default=None, help='test file path')
+    parser.add_argument('--test_file_path', type=str, default=test_dir, help='test file path')
 
     config = parser.parse_args()
 
