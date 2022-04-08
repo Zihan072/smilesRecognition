@@ -47,7 +47,7 @@ class MSTS:
         self._device = config.device
         self._gpu_non_block = config.gpu_non_block
         self.tf_encoder = config.tf_encoder
-        self.tf_decoder = config.tf_encoder
+        self.tf_decoder = config.tf_decoder
         self._cudnn_benchmark = config.cudnn_benchmark
 
         self._epochs = config.epochs
@@ -198,7 +198,7 @@ class MSTS:
 
                 training_time = str(datetime.timedelta(seconds=int(elapse)))
                 print("Iteration %d/%d ; mean_loss %.6f ; mean_accuracy %.5f ; img_per_sec %6.2f ; time: %s"
-                      % (i, total_batches, mean_loss, mean_accuracy, img_per_sec, training_time))
+                      % (i, total_batches, mean_loss, mean_accuracy, img_per_sec, training_time), flush=True)
                 #logger([mean_loss, mean_accuracy, img_per_sec, training_time])
 
         # after finishing training the epoch

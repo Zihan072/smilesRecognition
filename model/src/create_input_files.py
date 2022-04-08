@@ -15,6 +15,9 @@ def parse_args():
     # train files
     parser.add_argument('--train_file', default=False, type=str2bool,
                         help='Should we make a train validation set?')
+
+    parser.add_argument('--hdf5', default=False, type=str2bool,
+                        help='Should we save into hdf5?')
     config = parser.parse_args()
 
     return config
@@ -45,6 +48,7 @@ if __name__ == '__main__':
                         output_folder=input_data_dir,
                         min_token_freq=5,
                         max_len=75,
-                        random_seed=random_seed)
+                        random_seed=random_seed,
+                        save_hdf5 = config['hdf5'])
 
 

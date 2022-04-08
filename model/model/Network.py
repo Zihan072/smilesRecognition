@@ -71,9 +71,15 @@ class Encoder(nn.Module):
         # for the pretrained efficient net,  if we don't need to update the weights
         # then we can tell pytorch to save memory by releasing the intermediate layers of the
         # efficient net
-
+        #images = images.contiguous()
         # this can help to save memory when using the Transformer
-        with torch.no_grad():
+
+        if not self._fine_tune:
+                with torch.no_grad():
+                    out = self.resnet(images)  # (batch_size, 2048, image_size/32, image_size/32)
+                    out = self.adaptive_pool(out)  # (batch_size, 2048, encoded_image_size, encoded_image_size)
+                    out = out.permute(0, 2, 3, 1)  # (batch_size, encoded_image_size, encoded_image_size, 2048)
+        else:
             out = self.resnet(images)  # (batch_size, 2048, image_size/32, image_size/32)
             out = self.adaptive_pool(out)  # (batch_size, 2048, encoded_image_size, encoded_image_size)
             out = out.permute(0, 2, 3, 1)  # (batch_size, encoded_image_size, encoded_image_size, 2048)
@@ -108,13 +114,21 @@ class Encoder(nn.Module):
         # to do
         return out
 
-    def fine_tune(self, fine_tune=True):
+    def fine_tune(self, fine_tune=False):
+        self._fine_tune = fine_tune
         for p in self.resnet.parameters():
-            p.requires_grad = False
+            p.requires_grad = fine_tune
         # If fine-tuning, only fine-tune convolutional blocks 2 through 4
-        for c in list(self.resnet.children())[5:]:
-            for p in c.parameters():
-                p.requires_grad = fine_tune
+        # for c in list(self.resnet.children())[5:]:
+        #    for p in c.parameters():
+        #        p.requires_grad = fine_tune
+
+
+        # sgd:
+        # weight = weight - learning_rate * gradient
+        # no_grad(): pytorch don't compute gradient
+        # if gradeint exist, but weight.requires_grad == False: no update
+        # if we want to update: we need both conditions
 
 
 class Attention(nn.Module):
@@ -421,7 +435,8 @@ class TransformerDecoder(nn.Module):
     """
 
     def __init__(self, embed_dim, decoder_dim, vocab_size, device,
-                 encoder_dim=2048, dropout=0.5, n_layers=1, max_len=200):
+                 encoder_dim=2048, dropout=0.5, n_layers=1, max_len=101):
+        #max_len: we can set very high number
         """
         :param embed_dim: input size of embedding network
         :param decoder_dim: input size of decoder network
@@ -437,7 +452,7 @@ class TransformerDecoder(nn.Module):
         self.vocab_size = vocab_size
         self.dropout = dropout
         self.device = device
-        self.heads = heads
+        #self.heads = n_heads
         assert embed_dim == decoder_dim, "For the Transformer, embed dim needs to be the same with decoder_rim"
 
         # self.attention = Attention(encoder_dim, decoder_dim, attention_dim)  # attention network
@@ -445,13 +460,16 @@ class TransformerDecoder(nn.Module):
         self.embedding = nn.Embedding(vocab_size, embed_dim)  # embedding layer
         self.dropout = nn.Dropout(p=self.dropout)
         self.positional_encoder = PositionalEncoding(embed_dim, dropout=dropout, max_len=max_len)
+        #max_length: the length of sequence during decoder
         self.layers = nn.ModuleList()
-        from modules.TransformerLayers import TransformerDecoderLayer
+        from .modules.TransformerLayers import TransformerDecoderLayer
         for _ in range(n_layers):
             # its generally accepted that the head size is 64
             # so the number of heads is just decoder dim dividing by 64
             n_heads = decoder_dim // 64
-            self.layers.append(TransformerDecoderLayer(self.decoder_dim, n_heads, self.dropout))
+            #print(self.dropout)
+            self.layers.append(TransformerDecoderLayer(self.decoder_dim, n_heads, self.dropout.p))
+
 
         # self.decode_step = nn.LSTMCell(embed_dim + encoder_dim, decoder_dim, bias=True)  # decoding LSTMCell
         # self.init_h = nn.Linear(encoder_dim, decoder_dim)  # linear layer to find initial hidden state of LSTMCell
@@ -534,7 +552,7 @@ class TransformerDecoder(nn.Module):
         # first, transpose x to have [T x B x H] (same layout with encoder out]
         x = embeddings.transpose(0, 1).contiguous()
         seq_len = x.size(0)
-        self_attn_mask = torch.triu(x.new_ones(seq_len, seq_len), diagonal=1).byte()
+        self_attn_mask = torch.triu(x.new_ones(seq_len, seq_len), diagonal=1).bool()
 
         # run the Transformer decoder
         for i, layer in enumerate(self.layers):
