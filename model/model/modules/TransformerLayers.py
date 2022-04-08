@@ -60,9 +60,10 @@ def scale_dot_product_attention(q, k, v, scale=1.0, heads=8,
         # it means that for every element in the sentence (len_q), we store a score for every pixel in the input (len_k)
         # and we need to store B times (batch size) but also we need to store additionally H times (head size)
         # because each attention is divided into H heads.
-        print("Using time mask ...")
-        print(time_mask)
-        attn_score = attn_score.masked_fill_(time_mask, -999999)
+        # print("Using time mask ...")
+        # print(time_mask)
+        attn_score = attn_score.masked_fill_(time_mask.bool(), -10000)
+        #
 
     if pad_mask is not None:
         bsz = attn_score.size(0) // heads

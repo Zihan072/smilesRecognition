@@ -9,10 +9,10 @@ from tqdm import tqdm
 from collections import Counter
 import argparse
 import warnings
+import torch
 from multiprocessing import Pool
 warnings.filterwarnings("ignore")
 pd.options.display.max_rows = 80
-#？？？？
 
 from PIL import Image
 from skimage.transform import resize
@@ -45,7 +45,7 @@ def train_validation_split_df(data_dir,train_csv_dir,random_seed,train_size=0.8)
     df_train = df_shuffled.iloc[:train_index,:]
     df_val = df_shuffled.iloc[train_index:,:]
 
-    print(f'length of Training data: {len(df_train)}, Length of Validation data: {len(df_val)}')
+    print(f'Training: {len(df_train)}, Validation: {len(df_val)}')
 
     # Set Column Value for split
     df_train.loc[:,'split']='train'
@@ -60,7 +60,8 @@ def train_validation_split_df(data_dir,train_csv_dir,random_seed,train_size=0.8)
     print(f"Saved as 'train_modified.pkl'")
 
 
-def create_input_files(train_dir,train_pickle_dir,output_folder,min_token_freq,max_len=100,random_seed=910):
+def create_input_files(train_dir,train_pickle_dir,output_folder,min_token_freq,max_len=100,random_seed=910,
+                       save_hdf5=True):
     """
     Creates input files for train, val, test data
     :param Directory of train image folder
@@ -82,7 +83,6 @@ def create_input_files(train_dir,train_pickle_dir,output_folder,min_token_freq,m
 
 
     for index in tqdm(df.index,desc='Looping index'):
-        #desc='Looping index'？？？
         try:
             smiles_sequence=[]
             for token in df.loc[index,'SMILES_TOKEN']:
@@ -124,11 +124,6 @@ def create_input_files(train_dir,train_pickle_dir,output_folder,min_token_freq,m
     token_map['<end>'] = len(token_map) + 1
     token_map['<pad>'] = 0
 
-#
-#
-#
-
-
 
     # Create reverse token map for decoding predicted sequence
     reversed_token_map = dict((v, k) for k, v in token_map.items())
@@ -140,46 +135,108 @@ def create_input_files(train_dir,train_pickle_dir,output_folder,min_token_freq,m
     with open(output_folder / f'TOKENMAP_{base_filename}.json','w') as j:
         json.dump(token_map,j)
         print(f'Saved TOKENMAP_{base_filename}.json')
-    
+
     with open(output_folder / f'REVERSED_TOKENMAP_{base_filename}.json','w') as j:
         json.dump(reversed_token_map,j)
         print(f'Saved REVERSED_TOKENMAP_{base_filename}.json')
 
     for impaths, smiles_sequences, split in [(train_image_paths, train_image_smiles, 'TRAIN'),
                                    (val_image_paths, val_image_smiles, 'VAL')]:
-        #
 
-        with h5py.File(output_folder / f"{split}_IMAGES_{base_filename}.hdf5", 'w') as h:
-            #f;?
-            #
+        if (save_hdf5):
+            with h5py.File(output_folder / f"{split}_IMAGES_{base_filename}.hdf5", 'w') as h:
+                # Create dataset inside HDF5 file to store images
+                images = h.create_dataset('images', (len(impaths), 3, 256, 256), dtype='uint8')
 
-            # Create dataset inside HDF5 file to store images
-            images = h.create_dataset('images', (len(impaths), 3, 256, 256), dtype='uint8')
+                print(f"\nReading {split} images and sequences, storing to file...\n")
 
-            print(f"\nReading {split} images and sequences, storing to file...\n")
+                enc_tokens = []
+                sequence_lens = []
+                print(max_len)
+
+                for i, path in enumerate(tqdm(impaths)):
+                    try:
+                        # Read images
+                        #print(impaths[i])
+                        img = Image.open(impaths[i])
+                        img= img.resize((256,256))
+                        img = np.array(img)
+                        #img:(width， height， channel)
+                        img = np.rollaxis(img, 2, 0)
+                        #swap the axis, 2 is blue, 0 red, img
+                        # after rollaxis->img: (channel, width, height)
+                        #numpy.rollaxis(a, axis, start=0): Roll the specified axis backwards, until it lies in a given position.
+                        assert img.shape == (3, 256, 256)
+                        assert np.max(img) <= 255
+                        #check if it's right.
+
+                        # Save image to HDF5 file
+                        images[i] = img
+
+                        smiles_sequence = smiles_sequences[i]
+                        for j, s in enumerate(smiles_sequence):
+                            #j is idx
+                            #s is element of list
+
+
+                            # Encode sequences
+                            enc_s = [token_map['<start>']] + [token_map.get(token, token_map['<unk>']) for token in s] + [
+                                token_map['<end>']] + [token_map['<pad>']] * (max_len - len(s))
+                            #enc_s: list of integer
+                            # Find sequence lengths
+                            s_len = len(s) + 2
+
+                            enc_tokens.append(enc_s)
+                            sequence_lens.append(s_len)
+                    except KeyboardInterrupt:
+                        raise
+                    except Exception as e:
+                        print("Error during processing:", e)
+                        print(f'{path} was not processed')
+                        continue
+                # Sanity check
+                print(images.shape[0], len(enc_tokens), len(sequence_lens))
+                assert images.shape[0] == len(enc_tokens) == len(sequence_lens)
+
+                # Save encoded sequences and their lengths to JSON files
+                with open(output_folder/ f'{split}_SMILES_SEQUENCES_{base_filename}.json', 'w') as j:
+                    json.dump(enc_tokens, j)
+
+                with open(output_folder/ f'{split}_SMILES_SEQUENCE_LENS_{base_filename}.json', 'w') as j:
+                    json.dump(sequence_lens, j)
+
+        else:
+            images = list() # h.create_dataset('images', (len(impaths), 3, 256, 256), dtype='uint8')
+
+            print(f"\nReading {split} images and sequences, storing paths to file...\n")
 
             enc_tokens = []
             sequence_lens = []
-
+            print(max_len)
+            img_exist = True
+            text_exist = True
+            # path = None
             for i, path in enumerate(tqdm(impaths)):
+                path= None
+                enc_s = None
+                s_len = None
+
                 try:
                     # Read images
                     #print(impaths[i])
-                    img = Image.open(impaths[i])
-                    img= img.resize((256,256))
-                    img = np.array(img)
+                    path = impaths[i]
+                    Image.open(impaths[i])
+
+                except Exception as e:
+                    print("Error during processing:", e)
+                    print(f'{path} was not processed')
+                    img_exist = False
+
+                    # img= img.resize((256,256))
+                    #img = np.array(img)
                     #img:(width， height， channel)
-                    img = np.rollaxis(img, 2, 0)
-                    #swap the axis, 2 is blue, 0 red, img
-                    # after rollaxis->img: (channel, width, height)
-                    #numpy.rollaxis(a, axis, start=0): Roll the specified axis backwards, until it lies in a given position.
-                    assert img.shape == (3, 256, 256)
-                    assert np.max(img) <= 255
-                    #check if it's right.
 
-                    # Save image to HDF5 file
-                    images[i] = img
-
+                try:
                     smiles_sequence = smiles_sequences[i]
                     for j, s in enumerate(smiles_sequence):
                         #j is idx
@@ -192,15 +249,22 @@ def create_input_files(train_dir,train_pickle_dir,output_folder,min_token_freq,m
                         # Find sequence lengths
                         s_len = len(s) + 2
 
-                        enc_tokens.append(enc_s)
-                        sequence_lens.append(s_len)
-                except KeyboardInterrupt:
-                    raise
-                except:
+                        # enc_tokens.append(enc_s)
+                        # sequence_lens.append(s_len)
+                except Exception as e:
+                    print("Error during processing:", e)
                     print(f'{path} was not processed')
-                    continue
+                    text_exist = False
+
+                if img_exist and text_exist:
+                    assert path is not None
+                    images.append(path)
+                    enc_tokens.append(enc_s)
+                    sequence_lens.append(s_len)
+
             # Sanity check
-            assert images.shape[0] == len(enc_tokens) == len(sequence_lens)
+            print(len(images), len(enc_tokens), len(sequence_lens))
+            assert len(images) == len(enc_tokens) == len(sequence_lens)
 
             # Save encoded sequences and their lengths to JSON files
             with open(output_folder/ f'{split}_SMILES_SEQUENCES_{base_filename}.json', 'w') as j:
@@ -208,6 +272,8 @@ def create_input_files(train_dir,train_pickle_dir,output_folder,min_token_freq,m
 
             with open(output_folder/ f'{split}_SMILES_SEQUENCE_LENS_{base_filename}.json', 'w') as j:
                 json.dump(sequence_lens, j)
+
+            torch.save(images, output_folder / f"{split}_IMAGES_{base_filename}.pt" )
 
 
 def create_test_files(submission_csv_dir,test_dir,output_folder):

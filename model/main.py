@@ -7,8 +7,8 @@ import time
 import ray
 
 from model.Model import MSTS
-from src.datasets import SmilesDataset
-from src.config import input_data_dir, base_file_name, sample_submission_dir, reversed_token_map_dir
+from src.datasets import SmilesDataset, PNGSmileDataset
+from src.config import input_data_dir, base_file_name
 from utils import logger, make_directory, load_reversed_token_map, smiles_name_print, str2bool
 
 
@@ -21,6 +21,7 @@ def main():
     parser = argparse.ArgumentParser()
 
     parser.add_argument('--work_type', type=str, default='train', help="choose work type 'train' or 'test'")
+    parser.add_argument('--dataset', type=str, default='image', help='choose which dataset, image or hdf5')
     parser.add_argument('--encoder_type', type=str, default='efficientnetB2', help="choose encoder model type 'efficientnetB2', wide_res', 'res', and 'resnext' ")
     parser.add_argument('--seed', type=int, default=1, help="choose seed number")
     parser.add_argument('--tf_encoder', type=int, default=0, help="the number of transformer layers")
@@ -35,7 +36,7 @@ def main():
     parser.add_argument('--fp16', type=str2bool, default=True, help='Use half-precision/mixed precision training')
     parser.add_argument('--cudnn_benchmark', type=str2bool, default=True, help='set to true only if inputs to model are fixed size; otherwise lot of computational overhead')
 
-    parser.add_argument('--epochs', type=int, default=60, help='number of epochs to train for')
+    parser.add_argument('--epochs', type=int, default=50, help='number of epochs to train for')
     parser.add_argument('--batch_size', type=int, default=256, help='batch size')
     parser.add_argument('--workers', type=int, default=8, help='for data-loading; right now, only 1 works with h5py')
     parser.add_argument('--encoder_lr', type=float, default=1e-4, help='learning rate for encoder if fine-tuning')
@@ -67,20 +68,40 @@ def main():
         else:
             print('start from initial')
 
-        train_loader = torch.utils.data.DataLoader(
-            SmilesDataset(input_data_dir, base_file_name, 'TRAIN',
-                          transform=transforms.Compose([normalize])),
-            batch_size=config.batch_size, shuffle=True,
-            num_workers=config.workers, pin_memory=True)
+        if config.dataset == 'hdf5':
+            train_loader = torch.utils.data.DataLoader(
+                SmilesDataset(input_data_dir, base_file_name, 'TRAIN',
+                              transform=transforms.Compose([normalize])),
+                batch_size=config.batch_size, shuffle=True,
+                num_workers=config.workers, pin_memory=True)
 
-        val_loader = torch.utils.data.DataLoader(
-            SmilesDataset(input_data_dir, base_file_name, 'VAL',
-                          transform=transforms.Compose([normalize])),
-            batch_size=config.batch_size, shuffle=True,
-            num_workers=config.workers, pin_memory=True)
+            val_loader = torch.utils.data.DataLoader(
+                SmilesDataset(input_data_dir, base_file_name, 'VAL',
+                              transform=transforms.Compose([normalize])),
+                batch_size=config.batch_size, shuffle=True,
+                num_workers=config.workers, pin_memory=True)
+
+
+        elif config.dataset == 'image':
+            train_loader = torch.utils.data.DataLoader(
+                PNGSmileDataset(input_data_dir, base_file_name, 'TRAIN',
+                              transform=transforms.Compose([normalize])),
+                batch_size=config.batch_size, shuffle=True,
+                num_workers=config.workers, pin_memory=True)
+
+            val_loader = torch.utils.data.DataLoader(
+                PNGSmileDataset(input_data_dir, base_file_name, 'VAL',
+                              transform=transforms.Compose([normalize])),
+                batch_size=config.batch_size, shuffle=True,
+                num_workers=config.workers, pin_memory=True)
+
+
+
+
+        else:
+            print("Incorrect inputfile type")
 
         log_index = ['t_loss', 't_accr', 'v_loss', 'v_accr']
-
 
         logger(log_index)
         #logger(log_index, data_dir)
@@ -95,9 +116,11 @@ def main():
 
 
     elif config.work_type == 'single_test':
+        from src.config import sample_submission_dir, generate_submission_dir, reversed_token_map_dir
+
         if not config.test_file_path == None:
 
-            submission = pd.read_csv('/cvhci/temp/zihanchen/data/DACON_SMILES_data/sample_submission.csv')
+            submission = pd.read_csv(sample_submission_dir)
             reversed_token_map = load_reversed_token_map(reversed_token_map_dir)
             data_list = os.listdir(config.test_file_path)
 
@@ -105,7 +128,7 @@ def main():
             model.model_load()
             print('model loaded')
             submission = model.model_test(submission, data_list, reversed_token_map, transform)
-            submission.to_csv('sample_submission.csv', index=False)
+            submission.to_csv(generate_submission_dir, index=False)
 
         else:
             print('the test file path is none')
@@ -113,6 +136,7 @@ def main():
 
 
     elif config.work_type == 'ensemble_test':
+        from src.config import sample_submission_dir, generate_submission_dir, reversed_token_map_dir
         ray.init()
         if not config.test_file_path == None:
 
