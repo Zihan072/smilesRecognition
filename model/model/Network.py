@@ -49,6 +49,14 @@ class Encoder(nn.Module):
                 # we add this here to match the size, because output of resnet is 2048, efficientnetB2 is 1048
         elif model_type == 'efficientnetB3':
             resnet = torchvision.models.efficientnet_b3(pretrained=True)
+
+            if tf_encoder > 0:
+                # if we have transformer encoders then we need to keep embed dim
+                self.projector = torch.nn.Linear(1536, embed_dim)
+            else:
+                # 4 * embed dim because this is the requirement for the init lstm function in the decoder
+                self.projector = torch.nn.Linear(1536, 4 * embed_dim)
+
         elif model_type == 'efficientnetB7':
             resnet = torchvision.models.efficientnet_b7(pretrained=True)
             if tf_encoder > 0:

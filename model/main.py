@@ -26,7 +26,7 @@ def main():
     parser.add_argument('--seed', type=int, default=1, help="choose seed number")
     parser.add_argument('--tf_encoder', type=int, default=0, help="the number of transformer layers")
     parser.add_argument('--tf_decoder', type=int, default=0, help="the number of transformer decoder layers")
-    parser.add_argument('--decode_length', type=int, default=140, help='length of decoded SMILES sequence')
+    parser.add_argument('--decode_length', type=int, default=100, help='length of decoded SMILES sequence')
     parser.add_argument('--emb_dim', type=int, default=512, help='dimension of word embeddings')
     parser.add_argument('--attention_dim', type=int, default=512, help='dimension of attention linear layers')
     parser.add_argument('--decoder_dim', type=int, default=512, help='dimension of decoder RNN')
@@ -36,8 +36,9 @@ def main():
     parser.add_argument('--fp16', type=str2bool, default=True, help='Use half-precision/mixed precision training')
     parser.add_argument('--cudnn_benchmark', type=str2bool, default=True, help='set to true only if inputs to model are fixed size; otherwise lot of computational overhead')
 
-    parser.add_argument('--epochs', type=int, default=50, help='number of epochs to train for')
+    parser.add_argument('--epochs', type=int, default=60, help='number of epochs to train for')
     parser.add_argument('--batch_size', type=int, default=256, help='batch size')
+    parser.add_argument('--checkpointing_cnn', type=int, default=0, help='Checkpoint  the cnn to save memory')
     parser.add_argument('--workers', type=int, default=8, help='for data-loading; right now, only 1 works with h5py')
     parser.add_argument('--encoder_lr', type=float, default=1e-4, help='learning rate for encoder if fine-tuning')
     parser.add_argument('--decoder_lr', type=float, default=4e-4, help='learning rate for decoer')
@@ -54,6 +55,7 @@ def main():
     device = 'cuda' if torch.cuda.is_available() else 'cpu'
     config.device = 'cpu' if device == 'cpu' else config.device
     print('torch work_type:', config.device)
+    print("batch size:", config.batch_size)
     model = MSTS(config)
 
     # Custom dataloaders

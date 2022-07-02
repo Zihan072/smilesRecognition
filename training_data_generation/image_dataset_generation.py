@@ -21,7 +21,7 @@ from rdkit import RDLogger
 RDLogger.DisableLog('rdApp.*')
 
 # path
-path_all = './new_images_3rd_100/' # Saving new data
+path_all = './new_images_1M_group1/' # Saving new data
 if not os.path.exists(path_all):
     os.mkdir(path_all)
 else:
@@ -30,7 +30,7 @@ else:
 
 path = path_all + '/train_img' # Saving new image
 
-data_path = 'train_dataset_3rd_100'
+data_path = './train_dataset_3rd_5M/'
 if not os.path.exists(path):
     os.mkdir(path)
 else:
