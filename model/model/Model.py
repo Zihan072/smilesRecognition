@@ -13,7 +13,7 @@ from rdkit import Chem
 from rdkit.DataStructs import FingerprintSimilarity as FPS
 from rdkit.Chem import MolFromSmiles,RDKFingerprint
 
-from model.Network import Encoder, DecoderWithAttention, PredictiveDecoder
+from model.Network import Encoder, DecoderWithAttention
 from model.Predictor import Predict
 from utils import make_directory, decode_predicted_sequences
 
@@ -57,6 +57,7 @@ class MSTS:
         self._decoder_lr = config.decoder_lr
         self._grad_clip = config.grad_clip
         self._fine_tune_encoder = config.fine_tune_encoder
+        self._checkpointing_cnn = config.checkpointing_cnn
 
         self._model_save_path = config.model_save_path
         self._model_load_path = config.model_load_path
@@ -99,11 +100,12 @@ class MSTS:
 
         self._encoder = Encoder(model_type=config.encoder_type,
                                 tf_encoder=config.tf_encoder,
-                                embed_dim=self._emb_dim)
+                                embed_dim=self._emb_dim,
+                                checkpointing_cnn=self._checkpointing_cnn)
         self._encoder.to(self._device, non_blocking=self._gpu_non_block)
         self._encoder.fine_tune(self._fine_tune_encoder)
         print(self._encoder)
-        print(self._fine_tune_encoder)
+        #print(len(self._encoder.resnet[0]))
         #
         self._encoder_optimizer = torch.optim.Adam(self._encoder.parameters(),
                                                    lr=self._encoder_lr) if self._fine_tune_encoder else None

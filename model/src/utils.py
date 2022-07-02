@@ -325,7 +325,6 @@ def split_to_token(word,window=1):
 
 
 def str2bool(v):
-    #???????
     if v.lower() in ['true', 1]:
         return True
     elif v.lower() in ['false', 0]:

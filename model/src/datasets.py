@@ -5,7 +5,7 @@ import json
 import os
 from PIL import Image
 import numpy as np
-
+import torchvision.transforms as transforms
 
 class SmilesDataset(Dataset):
     """
@@ -112,8 +112,12 @@ class PNGSmileDataset(SmilesDataset):
         img = np.rollaxis(img, 2, 0)
 
         img = torch.FloatTensor(img / 255.)
+
+        transform = transforms.Grayscale()
+
         if self.transform is not None:
             img = self.transform(img)
+
 
         # print(img.size())
 

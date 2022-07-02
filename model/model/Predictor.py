@@ -4,7 +4,7 @@ import time
 from torch import nn
 import torch.optim
 import torch.utils.data
-from model.Network import Encoder, PredictiveDecoder
+from model.Network import Encoder
 
 @ray.remote(num_cpus=1, num_gpus=0.2)
 class Predict():
