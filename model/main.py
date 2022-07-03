@@ -16,13 +16,14 @@ def main():
     start_time = time.time()
 
     smiles_name_print()
-    #？？？
+    # ？？？
 
     parser = argparse.ArgumentParser()
 
     parser.add_argument('--work_type', type=str, default='train', help="choose work type 'train' or 'test'")
     parser.add_argument('--dataset', type=str, default='image', help='choose which dataset, image or hdf5')
-    parser.add_argument('--encoder_type', type=str, default='efficientnetB2', help="choose encoder model type 'efficientnetB2', wide_res', 'res', and 'resnext' ")
+    parser.add_argument('--encoder_type', type=str, default='efficientnetB2',
+                        help="choose encoder model type 'efficientnetB2', wide_res', 'res', and 'resnext' ")
     parser.add_argument('--seed', type=int, default=1, help="choose seed number")
     parser.add_argument('--tf_encoder', type=int, default=0, help="the number of transformer layers")
     parser.add_argument('--tf_decoder', type=int, default=0, help="the number of transformer decoder layers")
@@ -34,7 +35,8 @@ def main():
     parser.add_argument('--device', type=str, default='cuda', help='sets device for model and PyTorch tensors')
     parser.add_argument('--gpu_non_block', type=str2bool, default=True, help='GPU non blocking flag')
     parser.add_argument('--fp16', type=str2bool, default=True, help='Use half-precision/mixed precision training')
-    parser.add_argument('--cudnn_benchmark', type=str2bool, default=True, help='set to true only if inputs to model are fixed size; otherwise lot of computational overhead')
+    parser.add_argument('--cudnn_benchmark', type=str2bool, default=True,
+                        help='set to true only if inputs to model are fixed size; otherwise lot of computational overhead')
 
     parser.add_argument('--epochs', type=int, default=60, help='number of epochs to train for')
     parser.add_argument('--batch_size', type=int, default=256, help='batch size')
@@ -49,6 +51,7 @@ def main():
     parser.add_argument('--model_load_path', type=str, default=None, help='model load path')
     parser.add_argument('--model_load_num', type=int, default=None, help='epoch number of saved model')
     parser.add_argument('--test_file_path', type=str, default=test_dir, help='test file path')
+    parser.add_argument('--grayscale', type=str2bool, default=False, help='gray scale images ')
 
     config = parser.parse_args()
 
@@ -83,22 +86,20 @@ def main():
                 batch_size=config.batch_size, shuffle=True,
                 num_workers=config.workers, pin_memory=True)
 
-
         elif config.dataset == 'image':
             train_loader = torch.utils.data.DataLoader(
                 PNGSmileDataset(input_data_dir, base_file_name, 'TRAIN',
-                              transform=transforms.Compose([normalize])),
+                                transform=transforms.Compose([normalize]),
+                                grayscale=config.grayscale),
                 batch_size=config.batch_size, shuffle=True,
                 num_workers=config.workers, pin_memory=True)
 
             val_loader = torch.utils.data.DataLoader(
                 PNGSmileDataset(input_data_dir, base_file_name, 'VAL',
-                              transform=transforms.Compose([normalize])),
+                                transform=transforms.Compose([normalize]),
+                                grayscale=config.grayscale),
                 batch_size=config.batch_size, shuffle=True,
                 num_workers=config.workers, pin_memory=True)
-
-
-
 
         else:
             print("Incorrect inputfile type")
@@ -106,7 +107,7 @@ def main():
         log_index = ['t_loss', 't_accr', 'v_loss', 'v_accr']
 
         logger(log_index)
-        #logger(log_index, data_dir)
+        # logger(log_index, data_dir)
         for itr in range(config.epochs):
             print('epoch:', itr)
 
@@ -115,7 +116,6 @@ def main():
             print('t_loss: %s     t_accr: %s     v_loss: %s    v_accr: %s' % (t_l, t_a, v_l, v_a))
             model.model_save(save_num=itr)
             logger([t_l, t_a, v_l, v_a])
-
 
     elif config.work_type == 'single_test':
         from src.config import sample_submission_dir, generate_submission_dir, reversed_token_map_dir
@@ -127,6 +127,7 @@ def main():
             data_list = os.listdir(config.test_file_path)
 
             transform = transforms.Compose([normalize])
+            #TODO: add grayscale transform
             model.model_load()
             print('model loaded')
             submission = model.model_test(submission, data_list, reversed_token_map, transform)
@@ -157,6 +158,7 @@ def main():
         print('incorrect work type received.')
 
     print('process time:', time.time() - start_time)
+
 
 if __name__ == '__main__':
     main()
