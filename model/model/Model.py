@@ -419,6 +419,16 @@ class MSTS:
         )
 
     def model_load(self):
+
+        # decoder_state = self._decoder.state_dict()
+        # if you want to not load embedding:
+
+        # trained_state = torch.load(....)
+        #
+
+
+#lg
+        #pubchem
         self._decoder.load_state_dict(
             torch.load('{}/decoder{}.pkl'.format(self._model_load_path, str(self._model_load_num)),
                        map_location=self._device)

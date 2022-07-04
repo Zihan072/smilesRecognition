@@ -64,7 +64,7 @@ def scale_dot_product_attention(q, k, v, scale=1.0, heads=8,
         # print(time_mask)
 
         time_mask = time_mask.unsqueeze(0)
-        print("time_mask.shape",time_mask)
+        #print("time_mask.shape",time_mask)
         attn_score = attn_score.masked_fill_(time_mask.bool(), -10000)
         #
 

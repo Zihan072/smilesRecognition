@@ -40,10 +40,10 @@ from pathlib import Path
 # generate_submission_dir = 'test_20K.csv'
 # sample_submission_labels_dir = '/cvhci/temp/zihanchen/data/testset_isomeric/test_20K_labels.csv'
 
-# ###submission test
-# test_dir = '/cvhci/temp/zihanchen/data/DACON_SMILES_data/test/'
-# sample_submission_dir = '/cvhci/temp/zihanchen/data/DACON_SMILES_data/sample_submission.csv'
-# generate_submission_dir = 'sample_submission.csv'
+###submission test
+test_dir = '/cvhci/temp/zihanchen/data/DACON_SMILES_data/test/'
+sample_submission_dir = '/cvhci/temp/zihanchen/data/DACON_SMILES_data/sample_submission.csv'
+generate_submission_dir = 'sample_submission.csv'
 
 
 
