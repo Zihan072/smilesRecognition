@@ -68,7 +68,7 @@ class SmilesDataset(Dataset):
 
 class PNGSmileDataset(SmilesDataset):
 
-    def __init__(self, data_folder, base_file_name, split, transform=None):
+    def __init__(self, data_folder, base_file_name, split, transform=None, grayscale=False):
         """
         :param data_folder: folder where data files are stored
         :param base_file_name: base name of processed datasets
@@ -104,6 +104,11 @@ class PNGSmileDataset(SmilesDataset):
         self.transform = transform
         self.dataset_size = len(self.img_list)
 
+        if grayscale:
+            self.grayscale_transform = transforms.Grayscale(3)
+        else:
+            self.grayscale_transform = None
+
     def __getitem__(self, i):
         img_path = self.img_list[i]
 
@@ -117,6 +122,9 @@ class PNGSmileDataset(SmilesDataset):
         if self.transform is not None:
             img = self.transform(img)
 
+
+        if self.grayscale_transform is not None:
+            img = self.grayscale_transform(img)
         # print(img.size())
 
         if self.split in {'TRAIN', 'VAL'}:
