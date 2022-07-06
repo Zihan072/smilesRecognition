@@ -16,7 +16,7 @@ def main():
     start_time = time.time()
 
     smiles_name_print()
-    # ？？？
+
 
     parser = argparse.ArgumentParser()
 
@@ -126,8 +126,15 @@ def main():
             reversed_token_map = load_reversed_token_map(reversed_token_map_dir)
             data_list = os.listdir(config.test_file_path)
 
-            transform = transforms.Compose([normalize])
+            #transform = transforms.Compose([normalize])
             #TODO: add grayscale transform
+            if config.grayscale is not None:
+                transform = transforms.Compose([transforms.Compose([normalize]),
+                                      transforms.Grayscale(3)])
+
+            else:
+                transform = transforms.Compose([normalize])
+
             model.model_load()
             print('model loaded')
             submission = model.model_test(submission, data_list, reversed_token_map, transform)
