@@ -127,7 +127,6 @@ def main():
             data_list = os.listdir(config.test_file_path)
 
             #transform = transforms.Compose([normalize])
-            #TODO: add grayscale transform
             if config.grayscale is not None:
                 transform = transforms.Compose([transforms.Compose([normalize]),
                                       transforms.Grayscale(3)])

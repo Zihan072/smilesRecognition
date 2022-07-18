@@ -60,7 +60,7 @@ def train_validation_split_df(data_dir,train_csv_dir,random_seed,train_size=0.8)
     print(f"Saved as 'train_modified.pkl'")
 
 
-def create_input_files(train_dir,train_pickle_dir,output_folder,min_token_freq,max_len=100,random_seed=910,
+def create_input_files(train_dir,train_pickle_dir,output_folder,min_token_freq,max_len=75,random_seed=123,
                        save_hdf5=True):
     """
     Creates input files for train, val, test data
