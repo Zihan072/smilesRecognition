@@ -33,13 +33,20 @@ reversed_token_map_dir = input_data_dir/ f'REVERSED_TOKENMAP_{base_file_name}.js
 # ###Test fromPubChem
 # test_dir = '/cvhci/temp/zihanchen/data/testset_isomeric/test_img_20K/'
 # sample_submission_dir = '/cvhci/temp/zihanchen/data/testset_isomeric/test_20K.csv'
-# generate_submission_dir = 'test_20K.csv'
+# generate_submission_dir = 'test_20K_gray.csv'
 # sample_submission_labels_dir = '/cvhci/temp/zihanchen/data/testset_isomeric/test_20K_labels.csv'
 
-###submission test
-test_dir = '/cvhci/temp/zihanchen/data/DACON_SMILES_data/test/'
-sample_submission_dir = '/cvhci/temp/zihanchen/data/DACON_SMILES_data/sample_submission.csv'
-generate_submission_dir = 'sample_submission_gray.csv'
+# ###submission test
+# test_dir = '/cvhci/temp/zihanchen/data/DACON_SMILES_data/test/'
+# sample_submission_dir = '/cvhci/temp/zihanchen/data/DACON_SMILES_data/sample_submission.csv'
+# generate_submission_dir = 'sample_submission.csv'
+
+###RDKit test
+test_dir = '/cvhci/temp/zihanchen/data/RDkit_SMILES_gray/clear_img/'
+sample_submission_dir = '/cvhci/temp/zihanchen/data/RDkit_SMILES_gray/train_smiles.csv'
+generate_submission_dir = 'train_smiles_RDKit.csv'
+sample_submission_labels_dir = '/cvhci/temp/zihanchen/data/testset_isomeric/train_smiles_labels.csv'
+
 
 
 #

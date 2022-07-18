@@ -24,6 +24,10 @@ for _, row in predict_file.iterrows(): #Iterate over DataFrame rows as (index, S
         fp_pred = Chem.RDKFingerprint(ref_pred)
     except:
         print('Invalid SMILES:', smiles_pred)
+        smiles_pred = 'C'
+        ref_pred = Chem.MolFromSmiles(smiles_pred)
+        fp_pred = Chem.RDKFingerprint(ref_pred)
+
 
     ref_label = Chem.MolFromSmiles(smiles_label)
     fp_label = Chem.RDKFingerprint(ref_label)

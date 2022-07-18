@@ -261,6 +261,7 @@ class MSTS:
             start_time = time.time()
             imgs = Image.open(self._test_file_path + dat)
             imgs = self.png_to_tensor(imgs)
+            print(imgs.ndim)
             imgs = transform(imgs).to(self._device)
 
             encoded_imgs = self._encoder(imgs.unsqueeze(0))
@@ -394,7 +395,18 @@ class MSTS:
         """
         img = img.resize((256,256))
         img = np.array(img)
-        img = np.moveaxis(img, 2, 0)
+
+        # what is the dimension of img?
+        # (
+        print(img.ndim)
+        if img.ndim == 3:
+            img = np.moveaxis(img, 2, 0) # this function moves the final axis to the first
+            # it means that the img can be [256, 256, 3]  -> [3, 256, 256] #[N C H W] is right
+            # or [3, 256, 256] -> [256, 256, 3]] # [N H W C]
+        else:
+            # now with only grayscale your image is [256, 256] ->
+            img = np.stack([img, img, img], 0)
+
         return torch.FloatTensor(img) / 255.
 
     def is_smiles(self, sequence):
