@@ -60,7 +60,7 @@ def train_validation_split_df(data_dir,train_csv_dir,random_seed,train_size=0.8)
     print(f"Saved as 'train_modified.pkl'")
 
 
-def create_input_files(train_dir,train_pickle_dir,output_folder,min_token_freq,max_len=75,random_seed=123,
+def create_input_files(train_dirs,train_pickle_dirs,output_folder,min_token_freq,max_len=75,random_seed=123,
                        save_hdf5=True):
     """
     Creates input files for train, val, test data
@@ -70,7 +70,14 @@ def create_input_files(train_dir,train_pickle_dir,output_folder,min_token_freq,m
     :param min_token_freq: token that occurs less frequently than this threshold are binned as <unk>s
     :param max_len: Maximum Length of smiles_sequence. The maximum length of smiles_sequence
     """
-    df = pd.read_pickle(train_pickle_dir)
+
+    dfs = list()
+
+
+    for train_pickle_dir in train_pickle_dirs:
+        df = pd.read_pickle(train_pickle_dir)
+        dfs.append(df)
+    #merge dataframe
     #pickle: dataframe
 
 
@@ -81,36 +88,36 @@ def create_input_files(train_dir,train_pickle_dir,output_folder,min_token_freq,m
     val_image_smiles = []
     token_freq= Counter()
 
+    for df, train_dir in zip(dfs, train_dirs):
+        for index in tqdm(df.index,desc='Looping index'):
+            try:
+                smiles_sequence=[]
+                for token in df.loc[index,'SMILES_TOKEN']:
+                    # Update token frequency
+                    token_freq.update(token)
 
-    for index in tqdm(df.index,desc='Looping index'):
-        try:
-            smiles_sequence=[]
-            for token in df.loc[index,'SMILES_TOKEN']:
-                # Update token frequency
-                token_freq.update(token)
-            
-            if len(df.loc[index,'SMILES'])==0:
+                if len(df.loc[index,'SMILES'])==0:
+                    continue
+
+                smiles_sequence.append(df.loc[index,'SMILES'])
+
+                path = train_dir / df.loc[index,'file_name']
+
+
+                split_location = df.loc[index,'split']
+
+                if  split_location in {'train'}:
+                    train_image_paths.append(path)
+                    train_image_smiles.append(smiles_sequence)
+                elif split_location in {'val'}:
+                    val_image_paths.append(path)
+                    val_image_smiles.append(smiles_sequence)
+
+            except KeyboardInterrupt:
+                raise
+            except:
+                print(f"was not able to process {index}")
                 continue
-
-            smiles_sequence.append(df.loc[index,'SMILES'])
-
-            path = train_dir / df.loc[index,'file_name']
-
-
-            split_location = df.loc[index,'split']
-
-            if  split_location in {'train'}:
-                train_image_paths.append(path)
-                train_image_smiles.append(smiles_sequence)
-            elif split_location in {'val'}:
-                val_image_paths.append(path)
-                val_image_smiles.append(smiles_sequence)
-
-        except KeyboardInterrupt:
-            raise
-        except:
-            print(f"was not able to process {index}")
-            continue
 
     # Sanity Check
     assert len(train_image_paths) == len(train_image_smiles)

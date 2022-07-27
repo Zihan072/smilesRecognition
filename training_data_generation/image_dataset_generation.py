@@ -21,18 +21,25 @@ from rdkit import RDLogger
 RDLogger.DisableLog('rdApp.*')
 
 # path
-path_all = './new_images_1M_group1/' # Saving new data
+path_all = '/cvhci/temp/zihanchen/data/new_images_1M_group2/' # Saving new data
 if not os.path.exists(path_all):
     os.mkdir(path_all)
 else:
     pass
 
 
-path = path_all + '/train_img' # Saving new image
+path = path_all + '/train' # Saving new image
 
-data_path = './train_dataset_3rd_5M/'
+path_75 = path_all + '/train75+' # Saving new image which length is longer than 75
+
+data_path = '/cvhci/temp/zihanchen/data/train_dataset_3rd_5M/'
 if not os.path.exists(path):
     os.mkdir(path)
+else:
+    pass
+
+if not os.path.exists(path_75):
+    os.mkdir(path_75)
 else:
     pass
 
@@ -45,13 +52,17 @@ else:
 file_writer = open(path_all + "train.csv", 'w')
 file_writer.write("file_name,SMILES"+"\n")
 
+file_writer_75 = open(path_all + "train75.csv", 'w')
+file_writer_75.write("file_name,SMILES"+"\n")
+#store smiles longer than 75
 
 @click.command()
 @click.option('--group', default=1, help='group number')
 
 def making_data(group):
     print("group number:", group)
-
+    count_75 = 0
+    count = 0
     filtered_df = pd.read_csv(data_path +'/filtered_df_group{}.csv'.format(group))
     data_len = len(filtered_df)
     # for idx in tqdm(range(len(filtered_df[filtered_df['group'] == group]))):
@@ -60,44 +71,62 @@ def making_data(group):
         # print('idx:',idx, end='\r')
         # smiles = filtered_df[filtered_df['group'] == group]['SMILES'][idx]
         smiles = filtered_df['SMILES'][idx]  # this is the representation string
-        img_name = str(idx) + ".png"
-        #if len(smiles) > 100: continue  # we only choose the samples that are less than 101
-        assert len(smiles) <= 100
-
-        smiles_g = Chem.MolFromSmiles(smiles)
-        try:
-            # smile_plt is the image so we can directly save it.
-            smile_plt = Draw.MolToImage(smiles_g, size = (300,300))
-
-            # converting color
-            # switching r channel with b channel
-            # im = np.array(smile_plt)
-            #  r = im[:,:,0]
-            # g = im[:,:,1]
-            # b = im[:,:,2]
-            # convert = np.stack((b,g,r),axis=-1)
+        if len(smiles) <= 75:
+            count += 1
+            img_name = str(idx) + ".png"
+            #if len(smiles) > 100: continue  # we only choose the samples that are less than 101
 
 
-            # Making directory by the length of sequnece and saving
-            # making filename as "the length of smiels"_train_"index"
-            # ex) 0020_train_4
-            #dir_name = len(filtered_df['SMILES'][idx])
-            #dir_name = str(dir_name).zfill(4)
-            #os.makedirs(os.path.join(path, dir_name), exist_ok=True)
-            img_full_name = os.path.join(path, img_name)
-            file_writer.write(img_name + "," + smiles + "\n")
-            smile_plt.save(img_full_name)  # save the image in png
-            # np.save(path  + str(dir_name) + '/' +'{0}_train_{1}_{2}.npy'.format(dir_name, group, idx), arr = convert)
+            smiles_g = Chem.MolFromSmiles(smiles)
+            try:
+                # smile_plt is the image so we can directly save it.
+                smile_plt = Draw.MolToImage(smiles_g, size = (300,300))
+
+                # converting color
+                # switching r channel with b channel
+                # im = np.array(smile_plt)
+                #  r = im[:,:,0]
+                # g = im[:,:,1]
+                # b = im[:,:,2]
+                # convert = np.stack((b,g,r),axis=-1)
 
 
-            del (smile_plt)
-        except ValueError:
-            pass
+                # Making directory by the length of sequnece and saving
+                # making filename as "the length of smiels"_train_"index"
+                # ex) 0020_train_4
+                #dir_name = len(filtered_df['SMILES'][idx])
+                #dir_name = str(dir_name).zfill(4)
+                #os.makedirs(os.path.join(path, dir_name), exist_ok=True)
+                img_full_name = os.path.join(path, img_name)
+                file_writer.write(img_name + "," + smiles + "\n")
+                smile_plt.save(img_full_name)  # save the image in png
+                # np.save(path  + str(dir_name) + '/' +'{0}_train_{1}_{2}.npy'.format(dir_name, group, idx), arr = convert)
+                assert len(smiles) <= 75
+                del (smile_plt)
+            except ValueError:
+                pass
+        else:
+            img_name = str(idx) + ".png"
+            smiles_g = Chem.MolFromSmiles(smiles)
+            print("Index:{0},SMILES:{1} length longer than 75".format(idx, smiles))
+            try:
+                # smile_plt is the image so we can directly save it.
+                smile_plt = Draw.MolToImage(smiles_g, size = (300,300))
+                img_full_name = os.path.join(path_75, img_name)
+                file_writer_75.write(img_name + "," + smiles + "\n")
+                smile_plt.save(img_full_name)  # save the image in png
+                # np.save(path  + str(dir_name) + '/' +'{0}_train_{1}_{2}.npy'.format(dir_name, group, idx), arr = convert)
+                assert len(smiles) > 75
+                del (smile_plt)
+            except ValueError:
+                pass
 
+            count_75 += 1
         # checking the completion
         if idx % 1000 == 0 :
             print('group : {0}, index : {1}'.format(group, idx))
-
+    print("Number of length >75 is {0}".format(count_75))
+    print("Number of length <=75 is {0}".format(count))
     del(filtered_df)
     file_writer.close()
 
