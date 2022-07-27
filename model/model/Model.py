@@ -261,7 +261,7 @@ class MSTS:
             start_time = time.time()
             imgs = Image.open(self._test_file_path + dat)
             imgs = self.png_to_tensor(imgs)
-            print(imgs.ndim)
+            #print(imgs.ndim)
             imgs = transform(imgs).to(self._device)
 
             encoded_imgs = self._encoder(imgs.unsqueeze(0))

@@ -51,7 +51,7 @@ def main():
     parser.add_argument('--model_load_path', type=str, default=None, help='model load path')
     parser.add_argument('--model_load_num', type=int, default=None, help='epoch number of saved model')
     parser.add_argument('--test_file_path', type=str, default=test_dir, help='test file path')
-    parser.add_argument('--grayscale', type=str2bool, default=False, help='gray scale images ')
+    parser.add_argument('--grayscale', type=str2bool, default=True, help='gray scale images ')
 
     config = parser.parse_args()
 
@@ -102,7 +102,7 @@ def main():
                 num_workers=config.workers, pin_memory=True)
 
         else:
-            print("Incorrect inputfile type")
+            print("Incorrect input file type")
 
         log_index = ['t_loss', 't_accr', 'v_loss', 'v_accr']
 

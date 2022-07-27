@@ -1,7 +1,7 @@
 import argparse
 
 from utils import train_validation_split_df, create_input_files, create_test_files, str2bool
-from config import data_dir, train_dir, test_dir, train_csv_dir, train_pickle_dir, sample_submission_dir, input_data_dir, random_seed
+from config import data_dir, train_dirs, test_dir, train_csv_dir, train_pickle_dirs, sample_submission_dir, input_data_dir, random_seed
 
 def parse_args():
     parser = argparse.ArgumentParser()
@@ -43,8 +43,8 @@ if __name__ == '__main__':
     if config['train_file']==True:
         print('Creating train, validation file')
         # Create input files (along with word map)
-        create_input_files(train_dir=train_dir,
-                        train_pickle_dir=train_pickle_dir,
+        create_input_files(train_dirs=train_dirs,
+                        train_pickle_dirs=train_pickle_dirs,
                         output_folder=input_data_dir,
                         min_token_freq=5,
                         max_len=100,

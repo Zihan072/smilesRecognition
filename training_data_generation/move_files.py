@@ -3,7 +3,11 @@ import os
 input_file = '/cvhci/temp/zihanchen/data/new_images_5M/train.csv'
 input_dir = '/cvhci/temp/zihanchen/data/new_images_10M/train_img/'
 
-
+output_dir = "test_img_20K"
+if not os.path.exists(output_dir):
+    os.mkdir(output_dir)
+else:
+    pass
 
 i = 0
 for line in open(input_file).readlines():
@@ -14,6 +18,7 @@ for line in open(input_file).readlines():
     print(src_file)
     #shutils.copy(src_file, "test_img")
     #os.system("ln -s %s %s" % (src_file, "test_img_50K"))
+    os.system("cp %s %s" % (src_file, "test_img_20K"))
 
     os.system("rm %s" % (src_file))
 
