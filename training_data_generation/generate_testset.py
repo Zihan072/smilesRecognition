@@ -140,7 +140,7 @@ file_writer.write("file_name,SMILES"+"\n")
 #     del(filtered_df)
 #     file_writer.close()
 
-#from many groups
+#from multi groups
 def making_data(group):
     for i in range(4):
         print("group number:", group)
