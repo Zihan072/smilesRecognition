@@ -44,17 +44,17 @@ from pathlib import Path
 # reversed_token_map_dir = input_data_dir/ f'REVERSED_TOKENMAP_{base_file_name}.json'
 #
 # ###Test fromPubChem
-# test_dir = '/cvhci/temp/zihanchen/data/testset_isomeric/test_img_20K/'
-# #test_dir = '/cvhci/temp/zihanchen/data/new_images_1M_group1/train/'# image from pubchem less than 75
-# sample_submission_dir = '/cvhci/temp/zihanchen/data/testset_isomeric/test_20K.csv'
-# generate_submission_dir = 'test_20K_gray.csv'
-# #generate_submission_dir = 'test_pubchem_75.csv'
-# sample_submission_labels_dir = '/cvhci/temp/zihanchen/data/testset_isomeric/test_20K_labels.csv'
+test_dir = '/cvhci/temp/zihanchen/data/testset_isomeric/test_img_100K/'
+#test_dir = '/cvhci/temp/zihanchen/data/new_images_1M_group1/train/'# image from pubchem less than 75
+sample_submission_dir = '/cvhci/temp/zihanchen/data/testset_isomeric/test_100K.csv'
+generate_submission_dir = 'test_100K_gray.csv'
+#generate_submission_dir = 'test_pubchem_75.csv'
+sample_submission_labels_dir = '/cvhci/temp/zihanchen/data/testset_isomeric/test_100K_labels.csv'
 
 # ###submission test
-test_dir = '/cvhci/temp/zihanchen/data/DACON_SMILES_data/test/'
-sample_submission_dir = '/cvhci/temp/zihanchen/data/DACON_SMILES_data/sample_submission.csv'
-generate_submission_dir = 'sample_submission.csv'
+# test_dir = '/cvhci/temp/zihanchen/data/DACON_SMILES_data/test/'
+# sample_submission_dir = '/cvhci/temp/zihanchen/data/DACON_SMILES_data/sample_submission.csv'
+# generate_submission_dir = 'sample_submission.csv'
 
 ###RDKit test
 # test_dir = '/cvhci/temp/zihanchen/data/RDkit_SMILES_gray/clear_img/'
