@@ -145,6 +145,9 @@ def main():
 
 
     elif config.work_type == 'ensemble_test':
+        #TODO
+        #for experiments esamble test, easy for caculating tanimoto
+        #for application esamble prediction, evaluate and generate more information from platfrom PubChem for users. shows all possible smiles
         from src.config import sample_submission_dir, generate_submission_dir, reversed_token_map_dir
         ray.init()
         if not config.test_file_path == None:

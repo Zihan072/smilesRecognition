@@ -23,16 +23,16 @@ from rdkit import RDLogger
 RDLogger.DisableLog('rdApp.*')
 
 # path
-path = './new_images_10M/' # Saving new data
+path = '/cvhci/temp/zihanchen/data/new_images5M_-75/' # Saving new data
 if not os.path.exists(path):
     os.mkdir(path)
 else:
     pass
 
 
-img_path = path + '/train_img' # Saving new image
+img_path = path + '/train' # Saving new image
 
-data_path = 'train_dataset_10M'
+data_path = '/cvhci/temp/zihanchen/data/train_dataset_10M'
 if not os.path.exists(img_path):
     os.mkdir(img_path)
 else:
@@ -49,11 +49,11 @@ file_writer.write("file_name,SMILES"+"\n")
 
 
 @click.command()
-@click.option('--group', default=1, help='group number')
+@click.option('--group', default=4, help='group number')
 
 
 def making_data(group):
-    for i in range(10):
+    for i in range(5):
         print("group number:", group)
 
         filtered_df = pd.read_csv(data_path +'/filtered_df_group{}.csv'.format(group))
@@ -62,60 +62,35 @@ def making_data(group):
         print("data length of this group:", data_len)
         #print("The first line of csv file:", filtered_df[:][:1])
         group += 1
+        count = 0
         # for idx in tqdm(range(len(filtered_df[filtered_df['group'] == group]))):
-        for idx in tqdm(range(data_len)):
-            # idx += 3700000 * (group-1)
-            # print('idx:',idx, end='\r')
-            # smiles = filtered_df[filtered_df['group'] == group]['SMILES'][idx]
+        for idx in range(data_len):
             smiles = filtered_df['SMILES'][idx]  # this is the representation string
-            #print(smiles)
-            smiles_idx = filtered_df['Unnamed: 0'][idx] #hte index of SMILES
-            #print("smiles_idx", smiles_idx)
-            img_name = str(smiles_idx) + ".png"
-            #print("img_name", img_name)
-            #if len(smiles) > 100: continue  # we only choose the samples that are less than 101
-            assert len(smiles) <= 100
+            if len(smiles) <= 75:
+                count += 1
+                img_name = str(idx) + ".png"
+                smiles_g = Chem.MolFromSmiles(smiles)
+                try:
+                    # smile_plt is the image so we can directly save it.
+                    smile_plt = Draw.MolToImage(smiles_g, size = (300,300))
 
-            smiles_g = Chem.MolFromSmiles(smiles)
-            try:
-                # smile_plt is the image so we can directly save it.
-                smile_plt = Draw.MolToImage(smiles_g, size = (300,300))
-
-                # converting color
-                # switching r channel with b channel
-                # im = np.array(smile_plt)
-                #  r = im[:,:,0]
-                # g = im[:,:,1]
-                # b = im[:,:,2]
-                # convert = np.stack((b,g,r),axis=-1)
-
-
-                # Making directory by the length of sequnece and saving
-                # making filename as "the length of smiels"_train_"index"
-                # ex) 0020_train_4
-                # dir_name = len(filtered_df['SMILES'][idx])
-                # print("dir_name:", dir_name)
-                # dir_name = str(dir_name).zfill(4)
-                # print("dir_name:", dir_name)
-                # os.makedirs(os.path.join(img_path, dir_name), exist_ok=True)
-                img_full_name = os.path.join(img_path, img_name)
-                #print("img_full_name:", img_full_name)
-                file_writer.write(img_name + "," + smiles + "\n") # we must add "," between img_name and smiles, otherwise img_name and smiles will be stored in one column.
-                smile_plt.save(img_full_name)  # save the image in png
-                # np.save(path  + str(dir_name) + '/' +'{0}_train_{1}_{2}.npy'.format(dir_name, group, idx), arr = convert)
-
-
-                del (smile_plt)
-            except ValueError:
+                    img_full_name = os.path.join(img_path, img_name)
+                    file_writer.write(img_name + "," + smiles + "\n")
+                    smile_plt.save(img_full_name)  # save the image in png
+                    assert len(smiles) <= 75
+                    del (smile_plt)
+                except ValueError:
+                    pass
+            else:
                 pass
 
 
-        # checking the completion
-        #if idx % 100000 == 0 :
-        #    print('group : {0}, index : {1}'.format(group, idx))
-
-    del(filtered_df)
-    file_writer.close()
+            # checking the completion
+            # if idx % 10 == 0 :
+            #     print('group : {0}, index : {1}'.format(group, idx))
+        print("Number of length <=75 is {0}".format(count))
+        del(filtered_df)
+        file_writer.close()
 
 if __name__ == '__main__':
     making_data()

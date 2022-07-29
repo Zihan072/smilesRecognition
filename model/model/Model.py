@@ -138,7 +138,7 @@ class MSTS:
         log_step = 100  # we will print out the speed every 200 training steps
         total_batches = len(train_loader)
 
-        #TODO: measuring training speed
+        #measuring training speed
         # The unit that we can use to measure speed is images/second or tokens/second
         for i, (imgs, sequence, sequence_lens) in enumerate(train_loader):
             imgs = imgs.to(self._device)
@@ -276,7 +276,7 @@ class MSTS:
             print('{} sequence:, {}'.format(i, decoded_sequences))
             print('decode_time:', time.time() - start_time)
 
-            # TODO: compute the Tanimoto similarity
+
             if labels is not None:
                 label = labels[i]
                 SMILES_label = self.is_smiles(label)

@@ -4,7 +4,7 @@ import pandas as pd
 from src.config import generate_submission_dir, sample_submission_labels_dir
 from rdkit import Chem, DataStructs
 
-
+#python /cvhci/temp/zihanchen/data/model/tanimotoSmilarity.py
 predict_file = pd.read_csv(generate_submission_dir)
 labels_file = pd.read_csv(sample_submission_labels_dir)
 count = 0

@@ -113,12 +113,13 @@ class PNGSmileDataset(SmilesDataset):
         img_path = self.img_list[i]
 
         img = Image.open(img_path)
-        img = img.resize((256, 256))
-        img = np.array(img)
-        # img:(width， height， channel)
-        img = np.rollaxis(img, 2, 0)
-
-        img = torch.FloatTensor(img / 255.)
+        img = self.png_to_tensor(img)
+        # img = img.resize((256, 256))
+        # img = np.array(img)
+        # # img:(width， height， channel)
+        # img = np.rollaxis(img, 2, 0)
+        #
+        # img = torch.FloatTensor(img / 255.)
         if self.transform is not None:
             img = self.transform(img)
 
@@ -133,6 +134,31 @@ class PNGSmileDataset(SmilesDataset):
             return img, sequence, sequence_len
         else:
             return img
+
+
+
+    def png_to_tensor(self, img: Image):
+        """
+        convert png format image to torch tensor with resizing and value rescaling
+        :param img: .png file
+        :return: tensor data of float type
+        """
+        img = img.resize((256,256))
+        img = np.array(img)
+
+        # what is the dimension of img?
+        # (
+        #print(img.ndim)
+        if img.ndim == 3:
+            img = np.moveaxis(img, 2, 0) # this function moves the final axis to the first
+            # it means that the img can be [256, 256, 3]  -> [3, 256, 256] #[N C H W] is right
+            # or [3, 256, 256] -> [256, 256, 3]] # [N H W C]
+        else:
+            # now with only grayscale your image is [256, 256] ->
+            img = np.stack([img, img, img], 0)
+
+        return torch.FloatTensor(img) / 255.
+
 
     def __len__(self):
         return self.dataset_size
