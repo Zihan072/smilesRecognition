@@ -20,16 +20,16 @@ import cv2
 
 
 #generate data for test
-df = pd.read_csv("/cvhci/temp/zihanchen/data/RDkit_SMILES_gray/test_RDKit_labels.csv")
-img_path = '/cvhci/temp/zihanchen/data/RDkit_SMILES_gray/test_clear' # save new images
-img_path_noise = '/cvhci/temp/zihanchen/data/RDkit_SMILES_gray/test_noise'#save new generated images with adding some noises.
+# df = pd.read_csv("/cvhci/temp/zihanchen/data/RDkit_SMILES_gray/test_RDKit_labels.csv")
+# img_path = '/cvhci/temp/zihanchen/data/RDkit_SMILES_gray/test_clear' # save new images
+# img_path_noise = '/cvhci/temp/zihanchen/data/RDkit_SMILES_gray/test_noise'#save new generated images with adding some noises.
 
 # #generate data for train
-# df = pd.read_csv("/cvhci/temp/zihanchen/data/RDkit_SMILES_gray/train_RDKit_labels.csv")
-# img_path = '/cvhci/temp/zihanchen/data/RDkit_SMILES_gray/train_clear' # save new images
-# img_path_noise = '/cvhci/temp/zihanchen/data/RDkit_SMILES_gray/train_noise'#save new generated images with adding some noises.
+df = pd.read_csv("/cvhci/temp/zihanchen/data/RDkit_SMILES_gray/train_RDKit_labels.csv")
+img_path = '/cvhci/temp/zihanchen/data/RDkit_SMILES_gray/train_clear' # save new images
+img_path_noise = '/cvhci/temp/zihanchen/data/RDkit_SMILES_gray/train_noise'#save new generated images with adding some noises.
 
-
+print(img_path)
 if not os.path.exists(img_path_noise):
     os.mkdir(img_path_noise)
 else:

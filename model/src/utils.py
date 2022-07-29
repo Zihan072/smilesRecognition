@@ -5,7 +5,8 @@ import numpy as np
 import pandas as pd
 import h5py
 import json
-from tqdm import tqdm
+#from tqdm import tqdm
+from tqdm.auto import tqdm # solve the problem of each iteration of progressbar starts a new lin
 from collections import Counter
 import argparse
 import warnings

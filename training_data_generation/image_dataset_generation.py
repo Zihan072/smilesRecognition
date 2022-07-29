@@ -12,7 +12,7 @@ import numpy as np
 import pandas as pd
 from rdkit import Chem
 from rdkit.Chem import Draw
-from tqdm import tqdm
+from tqdm.auto import tqdm # solve the problem of each iteration of progressbar starts a new line
 import click
 
 import warnings
