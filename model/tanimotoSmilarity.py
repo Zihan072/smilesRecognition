@@ -9,6 +9,8 @@ predict_file = pd.read_csv(generate_submission_dir)
 labels_file = pd.read_csv(sample_submission_labels_dir)
 count = 0
 sum_Tan = 0
+
+#print(generate_submission_dir)
 for _, row in predict_file.iterrows(): #Iterate over DataFrame rows as (index, Series) pairs.
     idx = row['file_name']
     smiles_pred = row['SMILES']
