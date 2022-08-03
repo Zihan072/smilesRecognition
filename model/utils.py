@@ -1,7 +1,12 @@
 import os
 import csv
 import json
+import argparse
 #from ..model.src.config import data_dir
+import pubchempy as pcp
+import pandas as pd
+from rdkit import Chem
+from mol2chemfigPy3 import mol2chemfig
 
 def _csv_writer(file_name, write_data):
     f = open(file_name, 'a', encoding='utf-8', newline='')
@@ -80,3 +85,85 @@ def str2bool(v):
         return False
     else:
         raise argparse.ArgumentTypeError('Boolean value expected.')
+
+
+def convert_smiles(smiles):
+    try:
+        compounds = pcp.get_compounds(smiles, namespace='smiles')
+        c = compounds[0]
+        input_smiles = smiles
+        sum_formula = c.molecular_formula
+        iupac_name = c.iupac_name
+        isomeric_smiles = c.isomeric_smiles
+        #canonical_smiles = match.canonical_smiles #Canonical SMILES, with no stereochemistry information.
+        inchi = c.inchi
+        inchikey = c.inchikey
+        synonyms = c.synonyms
+        #Because PubChem only support isomeric SMILES, So we generate canonical SMILES from RDKit.
+        mol_inchi = Chem.inchi.MolFromInchi(inchi)
+        smiles_cano = Chem.MolToSmiles(mol_inchi, canonical=True, isomericSmiles=False)
+
+        #Molecular Weight:
+        weights = c.molecular_weight
+        chem = mol2chem(inchi)
+        elements = c.elements
+        elem_num = elements_num(elements)
+        bonds_num = c.bonds
+        atoms_num = c.atoms
+
+
+        print('CID in PubChem:',compounds)
+        print('Input SMILES:',input_smiles)
+        print('IUPAC Name:',iupac_name)
+        print('Sum Formula:',sum_formula)
+        print('Isomeric SMILES:',isomeric_smiles)
+        print('Other Canonical SMILES:',smiles_cano)
+        print('InChI:', inchi)
+        print('InChIKeys', inchikey)
+        print('Chemfig:')
+        #print(chem)
+        print(mol2chem(inchi))
+        #print(descrip)
+        descrip = description(elem_num,bonds_num,atoms_num,weights)
+        print('Synonyms:',synonyms)
+        print('='*200)
+
+    except:
+        print("Invalid SMILES: This SMILES string doesn't exist in PubChem library.")
+
+
+
+def elements_num(elements):
+    ls = {}
+    #n = 0
+    count = 1
+    for idx in range(len(elements)-1):
+        #if idx < len(elements)-1:
+        ele = elements[idx]
+        #print(ele)
+
+        if elements[idx+1] != elements[idx] or idx == len(elements) - 2:
+            ls.update({ele: count})
+            count = 1
+        else:
+            count += 1
+
+    return ls
+
+def description(elements_num,bonds_num,atoms_num,weights):
+    key = list(elements_num.keys())
+    key_string = ','.join([str(elem) for elem in key]) #convert list into string
+    values = list(elements_num.values())
+    values_string = ','.join([str(elem) for elem in values])
+    bonds_num = bonds_num
+    atoms_num = atoms_num
+    elem_num = len(elements_num)
+    weights = weights
+    print("The weights of this chemical structure is {0}. It contains {1} atoms and {2} bonds between\
+    them. There are {3} elements {4}, the corresponding number for each element is {5}.".format(weights, atoms_num,bonds_num, elem_num, key_string, values_string))
+
+def mol2chem(inchi):
+
+    chemfig = mol2chemfig(inchi)
+
+    return chemfig
