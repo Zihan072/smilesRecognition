@@ -105,13 +105,13 @@ def convert_smiles(smiles):
 
         #Molecular Weight:
         weights = c.molecular_weight
-        chem = mol2chem(inchi)
+        #chem = mol2chem(inchi)
         elements = c.elements
         elem_num = elements_num(elements)
         bonds_num = c.bonds
         atoms_num = c.atoms
 
-
+        descrip = description(elem_num,bonds_num,atoms_num,weights)
         print('CID in PubChem:',compounds)
         print('Input SMILES:',input_smiles)
         print('IUPAC Name:',iupac_name)
@@ -122,9 +122,9 @@ def convert_smiles(smiles):
         print('InChIKeys', inchikey)
         print('Chemfig:')
         #print(chem)
-        print(mol2chem(inchi))
-        #print(descrip)
-        descrip = description(elem_num,bonds_num,atoms_num,weights)
+        mol2chem(inchi)
+        print(descrip)
+
         print('Synonyms:',synonyms)
         print('='*200)
 
@@ -155,15 +155,14 @@ def description(elements_num,bonds_num,atoms_num,weights):
     key_string = ','.join([str(elem) for elem in key]) #convert list into string
     values = list(elements_num.values())
     values_string = ','.join([str(elem) for elem in values])
-    bonds_num = bonds_num
-    atoms_num = atoms_num
+    bonds_num = len(bonds_num)
+    atoms_num = len(atoms_num)
     elem_num = len(elements_num)
     weights = weights
-    print("The weights of this chemical structure is {0}. It contains {1} atoms and {2} bonds between\
-    them. There are {3} elements {4}, the corresponding number for each element is {5}.".format(weights, atoms_num,bonds_num, elem_num, key_string, values_string))
+    des = ("This chemical structure contains {1} atoms and {2} bonds between them. There are {3} elements {4}, the corresponding number for each element is {5}. Its weights is {0} in total.".format(weights, atoms_num,bonds_num, elem_num, key_string, values_string))
+    return des
 
 def mol2chem(inchi):
 
-    chemfig = mol2chemfig(inchi)
+    return mol2chemfig(inchi)
 
-    return chemfig

@@ -85,18 +85,20 @@ class MSTS:
         # define different decoder by work type
         if self._work_type == 'train':
             make_directory(self._model_save_path + '/' + self._model_name)
-            self._decoder.to(self._device, non_blocking=self._gpu_non_block)
+            #self._decoder.to(self._device, non_blocking=self._gpu_non_block)
             self._decoder_optimizer = torch.optim.Adam(params=filter(lambda p: p.requires_grad,
                                                                      self._decoder.parameters()),
                                                        lr=self._decoder_lr)
-        elif self._work_type == 'single_test':
-            # self._decoder = PredictiveDecoder(attention_dim=self._attention_dim,
-            #                                   embed_dim=self._emb_dim,
-            #                                   decoder_dim=self._decoder_dim,
-            #                                   vocab_size=self._vocab_size,
-            #
-            #                                   device=self._device)
-            self._decoder.to(self._device, non_blocking=self._gpu_non_block)
+        # elif self._work_type == 'single_test':
+        #     # self._decoder = PredictiveDecoder(attention_dim=self._attention_dim,
+        #     #                                   embed_dim=self._emb_dim,
+        #     #                                   decoder_dim=self._decoder_dim,
+        #     #                                   vocab_size=self._vocab_size,
+        #     #
+        #     #                                   device=self._device)
+        #     self._decoder.to(self._device, non_blocking=self._gpu_non_block)
+
+        self._decoder.to(self._device, non_blocking=self._gpu_non_block)
 
         self._encoder = Encoder(model_type=config.encoder_type,
                                 tf_encoder=config.tf_encoder,
@@ -104,7 +106,7 @@ class MSTS:
                                 checkpointing_cnn=self._checkpointing_cnn)
         self._encoder.to(self._device, non_blocking=self._gpu_non_block)
         self._encoder.fine_tune(self._fine_tune_encoder)
-        print(self._encoder)
+        #print(self._encoder) #print model structure
         #print(len(self._encoder.resnet[0]))
         #
         self._encoder_optimizer = torch.optim.Adam(self._encoder.parameters(),
@@ -386,6 +388,34 @@ class MSTS:
         print('total fault:', fault_counter)
         print('model contribution:', model_contribution)
         return submission
+
+    #TODO
+    def one_test(self, image, reversed_token_map, transform):
+        """
+        input is one sample for model test function
+        :param reversed_token_map: converts prediction to readable format
+        :param transform: normalize function
+        """
+        self._encoder.eval()
+        self._decoder.eval()
+
+
+        imgs = Image.open(image)
+        imgs = self.png_to_tensor(imgs)
+        imgs = transform(imgs).to(self._device)
+        encoded_imgs = self._encoder(imgs.unsqueeze(0))
+        print("USING NEW PREDICTION CODE ...")
+        predictions = self._decoder(encoded_imgs, decode_lengths=self._decode_length, mode='generation')
+
+        SMILES_predicted_sequence = list(torch.argmax(predictions.detach().cpu(), -1).numpy())[0]
+        decoded_sequences = decode_predicted_sequences(SMILES_predicted_sequence, reversed_token_map)
+
+
+        del (predictions)
+
+        return decoded_sequences
+
+
 
     def png_to_tensor(self, img: Image):
         """
