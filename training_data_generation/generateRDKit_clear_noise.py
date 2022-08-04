@@ -16,29 +16,31 @@ import cv2
 
 
 
-
-
-
 #generate data for test
 # df = pd.read_csv("/cvhci/temp/zihanchen/data/RDkit_SMILES_gray/test_RDKit_labels.csv")
 # img_path = '/cvhci/temp/zihanchen/data/RDkit_SMILES_gray/test_clear' # save new images
 # img_path_noise = '/cvhci/temp/zihanchen/data/RDkit_SMILES_gray/test_noise'#save new generated images with adding some noises.
 
 # #generate data for train
-df = pd.read_csv("/cvhci/temp/zihanchen/data/RDkit_SMILES_gray/train_RDKit_labels.csv")
-img_path = '/cvhci/temp/zihanchen/data/RDkit_SMILES_gray/train_clear' # save new images
-img_path_noise = '/cvhci/temp/zihanchen/data/RDkit_SMILES_gray/train_noise'#save new generated images with adding some noises.
+# df = pd.read_csv("/cvhci/temp/zihanchen/data/RDkit_SMILES_gray/train_RDKit_labels.csv")
+# img_path = '/cvhci/temp/zihanchen/data/RDkit_SMILES_gray/train_clear' # save new images
+# img_path_noise = '/cvhci/temp/zihanchen/data/RDkit_SMILES_gray/train_noise'#save new generated images with adding some noises.
 
-print(img_path)
+# #generate data for train
+df = pd.read_csv("/cvhci/temp/zihanchen/data/new_images5M_75_noise/train.csv")
+#img_path = '/cvhci/temp/zihanchen/data/new_images5M_75_noise/train' # save new images
+img_path_noise = '/cvhci/temp/zihanchen/data/new_images5M_75_noise/train'#save new generated images with adding some noises.
+
+print(img_path_noise)
 if not os.path.exists(img_path_noise):
     os.mkdir(img_path_noise)
 else:
     pass
 
-if not os.path.exists(img_path):
-    os.mkdir(img_path)
-else:
-    pass
+# if not os.path.exists(img_path):
+#     os.mkdir(img_path)
+# else:
+#     pass
 
 
 '''
@@ -64,10 +66,10 @@ for _, row in df.iterrows(): #Iterate over DataFrame rows as (index, Series) pai
         d.DrawMolecule(mol)
         d.FinishDrawing()
         d.WriteDrawingText("0.png")
-        img_clear = cv2.imread("0.png", cv2.IMREAD_GRAYSCALE)
+        img_clear = cv2.imread("0.png", cv2.IMREAD_COLOR)
 
-        img_full_name_clear = os.path.join(img_path, idx)
-        cv2.imwrite(img_full_name_clear, img_clear)
+        #img_full_name_clear = os.path.join(img_path, idx)
+        #cv2.imwrite(img_full_name_clear, img_clear)
 
         #Draw molecules with noise
         y, x = np.where(img_clear < 240) # molecule pixel coordinates

@@ -9,13 +9,13 @@ import ray
 from model.Model import MSTS
 from src.datasets import SmilesDataset, PNGSmileDataset
 from src.config import input_data_dir, base_file_name, test_dir
-from utils import logger, make_directory, load_reversed_token_map, smiles_name_print, str2bool
+from utils import logger, make_directory, load_reversed_token_map, smiles_name_print, str2bool, convert_smiles
 
 
 def main():
     start_time = time.time()
 
-    smiles_name_print()
+    #smiles_name_print()
 
 
     parser = argparse.ArgumentParser()
@@ -147,21 +147,52 @@ def main():
     elif config.work_type == 'ensemble_test':
         #TODO
         #for experiments esamble test, easy for caculating tanimoto
-        #for application esamble prediction, evaluate and generate more information from platfrom PubChem for users. shows all possible smiles
+        #for application esamble prediction, evaluate and generate more information from platfrom PubChem for users.
         from src.config import sample_submission_dir, generate_submission_dir, reversed_token_map_dir
         ray.init()
         if not config.test_file_path == None:
 
-            submission = pd.read_csv('./sample_submission.csv')
+            submission = pd.read_csv(sample_submission_dir)
             reversed_token_map = load_reversed_token_map(reversed_token_map_dir)
             data_list = os.listdir(config.test_file_path)
 
-            transform = transforms.Compose([normalize])
+            if config.grayscale is not None:
+                transform = transforms.Compose([transforms.Compose([normalize]),
+                                                transforms.Grayscale(3)])
+
+            else:
+                transform = transforms.Compose([normalize])
+
             submission = model.ensemble_test(submission, data_list, reversed_token_map, transform)
-            submission.to_csv('sample_submission2.csv', index=False)
+            submission.to_csv(generate_submission_dir, index=False)
 
         else:
             print('the test file path is none')
+
+
+    elif config.work_type == 'one_input_pred':
+    #TODO shows all possible smiles
+    #input one sample for application
+        from src.config import reversed_token_map_dir
+        #from .utils import convert_smiles
+        #ray.init()
+        image = '122.png'
+        reversed_token_map = load_reversed_token_map(reversed_token_map_dir)
+
+        if config.grayscale is not None:
+            transform = transforms.Compose([transforms.Compose([normalize]),
+                                            transforms.Grayscale(3)])
+
+        else:
+            transform = transforms.Compose([normalize])
+
+        model.model_load()
+
+        smiles = model.one_test(image, reversed_token_map, transform)
+        print('Generated SMILES:', smiles)
+        convert_smiles(smiles)
+
+
 
     else:
         print('incorrect work type received.')
@@ -169,5 +200,12 @@ def main():
     print('process time:', time.time() - start_time)
 
 
+    #TODO add one_input test for tool
+    # add generating other representations
+    # not print model
+    # add PubChem to evaluate.
+    # elif one_sample_test():
+    #     # predict fot image
+    #     # read image
 if __name__ == '__main__':
     main()
