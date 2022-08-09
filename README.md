@@ -1,2 +1,5 @@
 # smilesRecognition
-Convert chemical image into SMILES
+This system suports converting chemical image into SMILES and other chemical representations.
+
+## Install Enviroment
+
