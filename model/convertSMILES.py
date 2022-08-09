@@ -21,4 +21,4 @@ if __name__ == '__main__':
 
     if config['others']==True:
         print('Carrying out generating other chemical representations')
-        convert_smiles(smiles='C1=CC=CC=C1')
+        convert_smiles(smiles='C1=CC(=C(C(=C1)O)N)C(=O)O')

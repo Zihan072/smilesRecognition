@@ -22,8 +22,9 @@ warnings.filterwarnings(action = 'ignore')
 from rdkit import RDLogger
 RDLogger.DisableLog('rdApp.*')
 
+print("start 5M")
 # path
-path = '/cvhci/temp/zihanchen/data/new_images_5M_new/' # Saving new data
+path = '/cvhci/temp/zihanchen/data/new_images_5M_75/' # Saving new data
 if not os.path.exists(path):
     os.mkdir(path)
 else:
@@ -49,10 +50,11 @@ file_writer.write("file_name,SMILES"+"\n")
 
 
 @click.command()
-@click.option('--group', default=1, help='group number')
+@click.option('--group', default=4, help='group number')
 
 
 def making_data(group):
+    count = 0
     for i in range(5):
         print("group number:", group)
 
@@ -62,13 +64,14 @@ def making_data(group):
         print("data length of this group:", data_len)
         #print("The first line of csv file:", filtered_df[:][:1])
         group += 1
-        count = 0
+
         # for idx in tqdm(range(len(filtered_df[filtered_df['group'] == group]))):
-        for idx in range(data_len):
+        for idx in range(3):
             smiles = filtered_df['SMILES'][idx]  # this is the representation string
-            if len(smiles) <= 100:
+            #print(smiles)
+            if len(smiles) <= 75:
                 count += 1
-                img_name = str(idx) + ".png"
+                img_name = str(count) + ".png"
                 smiles_g = Chem.MolFromSmiles(smiles)
                 try:
                     # smile_plt is the image so we can directly save it.
@@ -77,7 +80,7 @@ def making_data(group):
                     img_full_name = os.path.join(img_path, img_name)
                     file_writer.write(img_name + "," + smiles + "\n")
                     smile_plt.save(img_full_name)  # save the image in png
-                    assert len(smiles) <= 100
+                    assert len(smiles) <= 75
                     del (smile_plt)
                 except ValueError:
                     pass
@@ -86,11 +89,14 @@ def making_data(group):
 
 
             # checking the completion
-            # if idx % 10 == 0 :
-            #     print('group : {0}, index : {1}'.format(group, idx))
-        print("Number of length <=100 is {0}".format(count))
+            if idx % 1 == 0 :
+                print('group : {0}, index : {1}'.format(group-1, idx))
+                print("This group contains ".format(idx))
+
         del(filtered_df)
-        file_writer.close()
+        print("Number of length <=75 is {0}".format(count))
+
+#file_writer.close()
 
 if __name__ == '__main__':
     making_data()

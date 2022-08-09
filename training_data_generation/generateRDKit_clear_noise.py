@@ -27,9 +27,9 @@ import cv2
 # img_path_noise = '/cvhci/temp/zihanchen/data/RDkit_SMILES_gray/train_noise'#save new generated images with adding some noises.
 
 # #generate data for train
-df = pd.read_csv("/cvhci/temp/zihanchen/data/new_images5M_75_noise/train.csv")
+df = pd.read_csv("/cvhci/temp/zihanchen/data/new_images_5M_75_noise/train.csv")
 #img_path = '/cvhci/temp/zihanchen/data/new_images5M_75_noise/train' # save new images
-img_path_noise = '/cvhci/temp/zihanchen/data/new_images5M_75_noise/train'#save new generated images with adding some noises.
+img_path_noise = '/cvhci/temp/zihanchen/data/new_images_5M_75_noise/train'#save new generated images with adding some noises.
 
 print(img_path_noise)
 if not os.path.exists(img_path_noise):
@@ -42,6 +42,8 @@ else:
 # else:
 #     pass
 
+file_writer = open("/cvhci/temp/zihanchen/data/new_images_5M_75_noise/train_new.csv", 'w')
+file_writer.write("file_name,SMILES"+"\n")
 
 '''
 Draw molecules
@@ -66,7 +68,8 @@ for _, row in df.iterrows(): #Iterate over DataFrame rows as (index, Series) pai
         d.DrawMolecule(mol)
         d.FinishDrawing()
         d.WriteDrawingText("0.png")
-        img_clear = cv2.imread("0.png", cv2.IMREAD_COLOR)
+        #img_clear = cv2.imread("0.png", cv2.IMREAD_COLOR)
+        img_clear = cv2.imread("0.png", cv2.IMREAD_GRAYSCALE)
 
         #img_full_name_clear = os.path.join(img_path, idx)
         #cv2.imwrite(img_full_name_clear, img_clear)
@@ -86,6 +89,7 @@ for _, row in df.iterrows(): #Iterate over DataFrame rows as (index, Series) pai
 
         img_full_name_noise = os.path.join(img_path_noise, idx)
         cv2.imwrite(img_full_name_noise, img_noisy)
+        file_writer.write(idx + "," + smiles + "\n")
 
     except IOError:
         print("Image file " + idx +" not accessible")

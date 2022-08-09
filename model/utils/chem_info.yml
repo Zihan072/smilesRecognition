@@ -1,16 +1,15 @@
-name: smiles
+name: zihan
 channels:
-  - pytorch
   - rdkit
   - defaults
 dependencies:
   - _libgcc_mutex=0.1=main
   - blas=1.0=mkl
+  - boost=1.63.0=py36h415b752_1
   - bzip2=1.0.8=h7b6447c_0
-  - ca-certificates=2020.7.22=0
+  - ca-certificates=2022.07.19=h06a4308_0
   - cairo=1.14.12=h8948797_3
-  - certifi=2020.6.20=py36_0
-  - cudatoolkit=10.1.243=h6bb024c_0
+  - certifi=2021.5.30=py36h06a4308_0
   - cycler=0.10.0=py36_0
   - dbus=1.13.16=hb2f20db_0
   - expat=2.2.9=he6710b0_2
@@ -50,7 +49,7 @@ dependencies:
   - numpy=1.19.1=py36hbc911f0_0
   - numpy-base=1.19.1=py36hfa32c7d_0
   - olefile=0.46=py36_0
-  - openssl=1.1.1g=h7b6447c_0
+  - openssl=1.1.1q=h7f8727e_0
   - pandas=1.1.1=py36he6710b0_0
   - pcre=8.44=he6710b0_0
   - pillow=7.2.0=py36hb39fc2d_0
@@ -63,6 +62,7 @@ dependencies:
   - python-dateutil=2.8.1=py_0
   - pytz=2020.1=py_0
   - qt=5.9.7=h5867ecd_1
+  - rdkit=2018.09.1.0=py36h71b666b_1
   - readline=8.0=h7b6447c_0
   - setuptools=49.6.0=py36_0
   - sip=4.19.8=py36hf484d3e_0
@@ -74,10 +74,6 @@ dependencies:
   - xz=5.2.5=h7b6447c_0
   - zlib=1.2.11=h7b6447c_3
   - zstd=1.4.5=h9ceee32_0
-  - pytorch=1.6.0=py3.6_cuda10.1.243_cudnn7.6.3_0
-  - torchvision=0.7.0=py36_cu101
-  - boost=1.63.0=py36h415b752_1
-  - rdkit=2018.09.1.0=py36h71b666b_1
   - pip:
     - aiohttp==3.6.2
     - aiohttp-cors==0.7.0
@@ -92,8 +88,10 @@ dependencies:
     - colorama==0.4.3
     - colorful==0.5.4
     - contextvars==2.4
+    - dataclasses==0.8
     - decorator==4.4.2
     - efficientnet-pytorch==0.7.0
+    - epam-indigo==1.7.4
     - filelock==3.0.12
     - future==0.18.2
     - google==3.0.0
@@ -110,22 +108,27 @@ dependencies:
     - importlib-metadata==2.0.0
     - joblib==0.16.0
     - jsonschema==3.2.0
+    - mol2chemfigpy3==1.4.2
     - msgpack==1.0.0
     - multidict==4.7.6
     - networkx==2.5
     - nvidia-ml-py3==7.352.0
     - opencensus==0.7.10
     - opencensus-context==0.1.1
+    - opencv-python==4.5.5.64
     - prometheus-client==0.8.0
     - protobuf==3.13.0
     - psutil==5.7.2
+    - pubchempy==1.0.4
     - py-spy==0.3.3
     - pyasn1==0.4.8
     - pyasn1-modules==0.2.8
     - pyrsistent==0.17.3
+    - python-levenshtein==0.12.2
     - pywavelets==1.1.1
     - pyyaml==5.3.1
     - ray==1.0.0
+    - rdkit-pypi==2021.9.4
     - redis==3.4.1
     - requests==2.24.0
     - rsa==4.6
@@ -135,11 +138,11 @@ dependencies:
     - soupsieve==2.0.1
     - threadpoolctl==2.1.0
     - tifffile==2020.9.3
-    - torch==1.6.0
+    - torch==1.10.2+cu113
+    - torchvision==0.11.3+cu113
     - tqdm==4.48.2
     - typing-extensions==3.7.4.3
     - urllib3==1.25.10
     - yarl==1.6.0
     - zipp==3.3.0
-prefix: /home/ubuntu/anaconda3/envs/smiles
-
+prefix: /cvhci/temp/zihanchen/anaconda3/envs/zihan

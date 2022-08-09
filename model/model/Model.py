@@ -14,7 +14,7 @@ from rdkit.DataStructs import FingerprintSimilarity as FPS
 from rdkit.Chem import MolFromSmiles,RDKFingerprint
 
 from model.Network import Encoder, DecoderWithAttention
-from model.Predictor import Predict
+#from .Predictor import Predict
 from utils import make_directory, decode_predicted_sequences
 
 import ray
@@ -299,27 +299,37 @@ class MSTS:
         :param transform: normalize function
         """
         # load .yaml file that contains information about each model
-        with open('model/prediction_models.yaml') as f:
+        with open('/cvhci/temp/zihanchen/data/model/model/prediction_models.yaml') as f:
             p_configs = yaml.load(f)
 
         predictors = []
-
+        # inefficient and wrong
+        # 1. model in Predict is outdated compared to model in Model.py
+        # 2. the current "model" object already contains a model -> you create 1 extra model for nothing
         for conf in p_configs.values():
             predictors.append(Predict.remote(conf, self._device,
                               self._gpu_non_block,
                               self._decode_length, self._model_load_path))
+        # 1. go to main.py and load yaml
+        # 2. for each p_config : make a new config with values from p_config overwritten over the default values from main.py
+        # 3. create a new model = MSTS(p_config)
 
         loop = asyncio.get_event_loop()
         async def process_async_calculate_similarity(combination_of_smiles, combination_index):
             return {idx: await self.async_fps(comb[0], comb[1]) for comb, idx in zip(combination_of_smiles, combination_index)}
 
+        def process_calculate_similarity(smiles, index):
+            pass
+
+        # for each model:
+        # create a prediction (something similar to single_test)
         def ray_prediction(imgs):
             return ray.get([p.decode.remote(imgs) for p in predictors])
 
 
         conf_len = len(p_configs)  # configure length == number of model to use
         fault_counter = 0
-        sequence = None
+        #sequence = None
         model_contribution = np.zeros(conf_len)
         for i, dat in enumerate(data_list):
             imgs = Image.open(self._test_file_path + dat)
@@ -357,6 +367,8 @@ class MSTS:
                 # result ensemble
                 ms_to_fingerprint = [RDKFingerprint(x) for x in ms.values()]
                 combination_of_smiles = list(combinations(ms_to_fingerprint, 2))
+                # [1 2 3 4 5]
+                # [[1, 2], [1,3 ], [1, 4], [1, 5], [2, 3] ... [4 5]]
                 ms_to_index = [x for x in ms]
                 combination_index = list(combinations(ms_to_index, 2))
 
@@ -468,13 +480,16 @@ class MSTS:
         # trained_state = torch.load(....)
         #
 
-
+        decoder_checkpoint = '{}/decoder{}.pkl'.format(self._model_load_path, str(self._model_load_num))
+        print(decoder_checkpoint)
 #lg
         #pubchem
         self._decoder.load_state_dict(
             torch.load('{}/decoder{}.pkl'.format(self._model_load_path, str(self._model_load_num)),
                        map_location=self._device)
         )
+
+        #print(('{}/decoder{}.pkl'.format(self._model_load_path, str(self._model_load_num))
 
         try:
             self._encoder.load_state_dict(

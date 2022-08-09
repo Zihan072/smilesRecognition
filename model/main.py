@@ -5,6 +5,13 @@ import torchvision.transforms as transforms
 import pandas as pd
 import time
 import ray
+import yaml
+import asyncio
+import time
+from itertools import combinations
+import datetime
+import numpy as np
+
 
 from model.Model import MSTS
 from src.datasets import SmilesDataset, PNGSmileDataset
@@ -53,19 +60,24 @@ def main():
     parser.add_argument('--test_file_path', type=str, default=test_dir, help='test file path')
     parser.add_argument('--grayscale', type=str2bool, default=True, help='gray scale images ')
 
+
     config = parser.parse_args()
 
     device = 'cuda' if torch.cuda.is_available() else 'cpu'
     config.device = 'cpu' if device == 'cpu' else config.device
     print('torch work_type:', config.device)
     print("batch size:", config.batch_size)
-    model = MSTS(config)
+
 
     # Custom dataloaders
     normalize = transforms.Normalize(mean=[0.485, 0.456, 0.406],
                                      std=[0.229, 0.224, 0.225])
 
+    if config.work_type != 'ensemble_test':
+        model = MSTS(config) #create one instance of the model
+
     if config.work_type == 'train':
+        from utils import make_directory
         make_directory(config.model_save_path)
         if not (config.model_load_path == None) and not (config.model_load_num == None):
             model.model_load()
@@ -127,7 +139,7 @@ def main():
             data_list = os.listdir(config.test_file_path)
 
             #transform = transforms.Compose([normalize])
-            if config.grayscale is not None:
+            if config.grayscale is not False:
                 transform = transforms.Compose([transforms.Compose([normalize]),
                                       transforms.Grayscale(3)])
 
@@ -142,28 +154,176 @@ def main():
         else:
             print('the test file path is none')
 
-
-
     elif config.work_type == 'ensemble_test':
         #TODO
         #for experiments esamble test, easy for caculating tanimoto
         #for application esamble prediction, evaluate and generate more information from platfrom PubChem for users.
         from src.config import sample_submission_dir, generate_submission_dir, reversed_token_map_dir
+        from PIL import Image
+
+        from rdkit import Chem
+        from rdkit.DataStructs import FingerprintSimilarity as FPS
+        from rdkit.Chem import MolFromSmiles,RDKFingerprint
+        from utils import make_directory, decode_predicted_sequences
         ray.init()
+
+        from copy import deepcopy
+
+        def clone_config(config, p_config):
+            new_config = deepcopy(config)
+
+            new_config.emb_dim = p_config['emb_dim']
+            new_config.attention_dim = p_config['attention_dim']
+            new_config.decoder_dim = p_config['decoder_dim']
+            new_config.encoder_type = p_config['encoder_type']
+            new_config.tf_encoder = p_config['tf_encoder']
+            new_config.tf_decoder = p_config['tf_decoder']
+            new_config.load_model_path = p_config['load_model_path']
+            new_config.load_model_num = p_config['load_model_num']
+
+            return new_config
+
+        # now we create models:
+        with open('/cvhci/temp/zihanchen/data/model/model/prediction_models.yaml') as f:
+            p_configs = yaml.load(f)
+
+        model_configs = []
+        models = []
+        for key in p_configs:
+            p_config = p_configs[key]
+            print(p_config, key)
+            new_config = clone_config(config, p_config)
+            model_configs.append(new_config)
+
+        for model_config in model_configs:
+            model_ = MSTS(model_config)
+            model_.model_load()
+            print('model loaded')
+            models.append(model_)
+
         if not config.test_file_path == None:
 
             submission = pd.read_csv(sample_submission_dir)
             reversed_token_map = load_reversed_token_map(reversed_token_map_dir)
             data_list = os.listdir(config.test_file_path)
 
-            if config.grayscale is not None:
+            if config.grayscale is not False:
                 transform = transforms.Compose([transforms.Compose([normalize]),
                                                 transforms.Grayscale(3)])
 
             else:
                 transform = transforms.Compose([normalize])
 
-            submission = model.ensemble_test(submission, data_list, reversed_token_map, transform)
+            conf_len = len(p_configs)  # configure length == number of model to use
+            fault_counter = 0
+            #sequence = None
+            model_contribution = np.zeros(conf_len)
+
+            def png_to_tensor(img: Image):
+                """
+                convert png format image to torch tensor with resizing and value rescaling
+                :param img: .png file
+                :return: tensor data of float type
+                """
+                img = img.resize((256,256))
+                img = np.array(img)
+
+                # what is the dimension of img?
+                # (
+                print(img.ndim)
+                if img.ndim == 3:
+                    img = np.moveaxis(img, 2, 0) # this function moves the final axis to the first
+                    # it means that the img can be [256, 256, 3]  -> [3, 256, 256] #[N C H W] is right
+                    # or [3, 256, 256] -> [256, 256, 3]] # [N H W C]
+                else:
+                    # now with only grayscale your image is [256, 256] ->
+                    img = np.stack([img, img, img], 0)
+
+                return torch.FloatTensor(img) / 255.
+
+            def _decode(models, _input):
+                outputs = list()
+                for model in models:
+                    encoded_imgs = model._encoder(_input.unsqueeze(0))
+                    print("USING NEW PREDICTION CODE ...")
+                    predictions = model._decoder(encoded_imgs, decode_lengths=model._decode_length, mode='generation')
+                    outputs.append(predictions)
+
+                return outputs
+
+            def calculate_similarity(combination_of_smiles, combination_index):
+                return {idx: FPS(comb[0], comb[1]) for comb, idx in zip(combination_of_smiles, combination_index)}
+
+            for i, dat in enumerate(data_list):
+                imgs = Image.open(config.test_file_path + dat)
+                imgs = png_to_tensor(imgs)
+                imgs = transform(imgs).cuda()
+
+                # predict SMILES sequence form each predictors
+                preds_raw = _decode(models, imgs)
+
+                preds=[]
+                for p in preds_raw:
+                    # predicted sequence token value
+                    SMILES_predicted_sequence = list(torch.argmax(p.detach().cpu(), -1).numpy())[0]
+                    # converts prediction to readable format from sequence token value
+                    decoded_sequences = decode_predicted_sequences(SMILES_predicted_sequence, reversed_token_map)
+                    preds.append(decoded_sequences)
+                del(preds_raw)
+                print(preds)
+
+                # fault check: whether the prediction satisfies the SMILES format or not
+                ms = {}
+
+                for idx, p in enumerate(preds):
+                    m = MolFromSmiles(p)
+                    if m != None:
+                        ms.update({idx:m})
+
+                if len(ms) == 0: # there is no decoded sequence that matches to SMILES format
+                    print('decode fail')
+                    fault_counter += 1
+                    sequence = preds[0]
+
+                elif len(ms) == 1: # there is only one decoded sequence that matches to SMILES format
+                    sequence = preds[list(ms.keys())[0]]
+
+                else: # there is more than two decoded sequence that matches to SMILES format
+                    # result ensemble
+                    ms_to_fingerprint = [RDKFingerprint(x) for x in ms.values()]
+                    combination_of_smiles = list(combinations(ms_to_fingerprint, 2))
+                    # [1 2 3 4 5
+                    ms_to_index = [x for x in ms]
+                    combination_index = list(combinations(ms_to_index, 2))
+
+                    # calculate similarity score
+                    smiles_dict = calculate_similarity(combination_of_smiles, combination_index)
+                    # sort the pairs by similarity score
+                    smiles_dict = sorted(smiles_dict.items(), key=(lambda x: x[1]), reverse=True)
+
+                    if smiles_dict[0][1] == 1.0: # if a similar score is 1 we assume to those predictions are correct.
+                        sequence = preds[smiles_dict[0][0][0]]
+                    else:
+                        score_board = np.zeros(conf_len)
+                        for i, (idx, value) in enumerate(smiles_dict):
+                            score_board[list(idx)] += conf_len-i
+
+                        pick = int(np.argmax(score_board)) # choose the index that has the highest score
+                        sequence = preds[pick]  # pick the decoded sequence
+                        model_contribution[pick] += 1 # logging witch model used
+                        sequence = preds[np.argmax(score_board)]
+
+                print('{} sequence:, {}'.format(i, sequence))
+                # print('decode_time:', time.time() - start_time)
+
+                submission.loc[submission['file_name'] == dat, 'SMILES'] = sequence
+                del(preds)
+
+            # loop.close()
+            print('total fault:', fault_counter)
+            print('model contribution:', model_contribution)
+
+            # submission = model.ensemble_test(submission, data_list, reversed_token_map, transform)
             submission.to_csv(generate_submission_dir, index=False)
 
         else:

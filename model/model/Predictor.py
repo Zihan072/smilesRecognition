@@ -5,6 +5,7 @@ from torch import nn
 import torch.optim
 import torch.utils.data
 from model.Network import Encoder
+#from .Network import import Decoder
 
 @ray.remote(num_cpus=1, num_gpus=0.2)
 class Predict():
@@ -30,7 +31,7 @@ class Predict():
         self._model_load_path = load_path
 
         self._encoder = Encoder(model_type=config['encoder_type']).to(non_blocking=gpu_non_block)
-        self._decoder = PredictiveDecoder(attention_dim=self._attention_dim,
+        self._decoder = DecoderWithAttention(attention_dim=self._attention_dim,
                                           embed_dim=self._emb_dim,
                                           decoder_dim=self._decoder_dim,
                                           vocab_size=self._vocab_size,
