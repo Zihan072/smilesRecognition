@@ -77,8 +77,8 @@ def main():
         model = MSTS(config) #create one instance of the model
 
     if config.work_type == 'train':
-        from utils import make_directory
-        make_directory(config.model_save_path)
+        # from utils import make_directory
+        # make_directory(config.model_save_path)
         if not (config.model_load_path == None) and not (config.model_load_num == None):
             model.model_load()
             print('model loaded')
