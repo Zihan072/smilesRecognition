@@ -5,7 +5,10 @@ from torch import nn
 import torch.optim
 import torch.utils.data
 from model.Network import Encoder
+<<<<<<< HEAD
 #from .Network import import Decoder
+=======
+>>>>>>> 033783af0649e3e16d06d0d972bbe143af1a187f
 
 @ray.remote(num_cpus=1, num_gpus=0.2)
 class Predict():

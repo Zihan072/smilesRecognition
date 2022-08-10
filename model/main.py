@@ -59,7 +59,10 @@ def main():
     parser.add_argument('--model_load_num', type=int, default=None, help='epoch number of saved model')
     parser.add_argument('--test_file_path', type=str, default=test_dir, help='test file path')
     parser.add_argument('--grayscale', type=str2bool, default=True, help='gray scale images ')
+<<<<<<< HEAD
 
+=======
+>>>>>>> 033783af0649e3e16d06d0d972bbe143af1a187f
 
     config = parser.parse_args()
 
@@ -67,7 +70,11 @@ def main():
     config.device = 'cpu' if device == 'cpu' else config.device
     print('torch work_type:', config.device)
     print("batch size:", config.batch_size)
+<<<<<<< HEAD
 
+=======
+    model = MSTS(config)
+>>>>>>> 033783af0649e3e16d06d0d972bbe143af1a187f
 
     # Custom dataloaders
     normalize = transforms.Normalize(mean=[0.485, 0.456, 0.406],
@@ -91,6 +98,14 @@ def main():
                               transform=transforms.Compose([normalize])),
                 batch_size=config.batch_size, shuffle=True,
                 num_workers=config.workers, pin_memory=True)
+<<<<<<< HEAD
+
+            val_loader = torch.utils.data.DataLoader(
+                SmilesDataset(input_data_dir, base_file_name, 'VAL',
+                              transform=transforms.Compose([normalize])),
+                batch_size=config.batch_size, shuffle=True,
+                num_workers=config.workers, pin_memory=True)
+=======
 
             val_loader = torch.utils.data.DataLoader(
                 SmilesDataset(input_data_dir, base_file_name, 'VAL',
@@ -115,9 +130,31 @@ def main():
 
         else:
             print("Incorrect input file type")
+>>>>>>> 033783af0649e3e16d06d0d972bbe143af1a187f
+
+        elif config.dataset == 'image':
+            train_loader = torch.utils.data.DataLoader(
+                PNGSmileDataset(input_data_dir, base_file_name, 'TRAIN',
+                                transform=transforms.Compose([normalize]),
+                                grayscale=config.grayscale),
+                batch_size=config.batch_size, shuffle=True,
+                num_workers=config.workers, pin_memory=True)
+
+            val_loader = torch.utils.data.DataLoader(
+                PNGSmileDataset(input_data_dir, base_file_name, 'VAL',
+                                transform=transforms.Compose([normalize]),
+                                grayscale=config.grayscale),
+                batch_size=config.batch_size, shuffle=True,
+                num_workers=config.workers, pin_memory=True)
+
+<<<<<<< HEAD
+        else:
+            print("Incorrect input file type")
 
         log_index = ['t_loss', 't_accr', 'v_loss', 'v_accr']
 
+=======
+>>>>>>> 033783af0649e3e16d06d0d972bbe143af1a187f
         logger(log_index)
         # logger(log_index, data_dir)
         for itr in range(config.epochs):
@@ -139,7 +176,11 @@ def main():
             data_list = os.listdir(config.test_file_path)
 
             #transform = transforms.Compose([normalize])
+<<<<<<< HEAD
             if config.grayscale is not False:
+=======
+            if config.grayscale is not None:
+>>>>>>> 033783af0649e3e16d06d0d972bbe143af1a187f
                 transform = transforms.Compose([transforms.Compose([normalize]),
                                       transforms.Grayscale(3)])
 
@@ -154,17 +195,22 @@ def main():
         else:
             print('the test file path is none')
 
+
+
     elif config.work_type == 'ensemble_test':
         #TODO
         #for experiments esamble test, easy for caculating tanimoto
         #for application esamble prediction, evaluate and generate more information from platfrom PubChem for users.
         from src.config import sample_submission_dir, generate_submission_dir, reversed_token_map_dir
+<<<<<<< HEAD
         from PIL import Image
 
         from rdkit import Chem
         from rdkit.DataStructs import FingerprintSimilarity as FPS
         from rdkit.Chem import MolFromSmiles,RDKFingerprint
         from utils import make_directory, decode_predicted_sequences
+=======
+>>>>>>> 033783af0649e3e16d06d0d972bbe143af1a187f
         ray.init()
 
         from copy import deepcopy
@@ -207,13 +253,18 @@ def main():
             reversed_token_map = load_reversed_token_map(reversed_token_map_dir)
             data_list = os.listdir(config.test_file_path)
 
+<<<<<<< HEAD
             if config.grayscale is not False:
+=======
+            if config.grayscale is not None:
+>>>>>>> 033783af0649e3e16d06d0d972bbe143af1a187f
                 transform = transforms.Compose([transforms.Compose([normalize]),
                                                 transforms.Grayscale(3)])
 
             else:
                 transform = transforms.Compose([normalize])
 
+<<<<<<< HEAD
             conf_len = len(p_configs)  # configure length == number of model to use
             fault_counter = 0
             #sequence = None
@@ -324,6 +375,9 @@ def main():
             print('model contribution:', model_contribution)
 
             # submission = model.ensemble_test(submission, data_list, reversed_token_map, transform)
+=======
+            submission = model.ensemble_test(submission, data_list, reversed_token_map, transform)
+>>>>>>> 033783af0649e3e16d06d0d972bbe143af1a187f
             submission.to_csv(generate_submission_dir, index=False)
 
         else:

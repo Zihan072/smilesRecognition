@@ -53,12 +53,18 @@
 #  #ResNeXt-101-32x8d
 #  #PubChem1
 
+<<<<<<< HEAD
 #lg+PubChem1M+ChEMBL75+RDKit_clear: <75
+=======
+
+'''Lg_dataset'''
+>>>>>>> 033783af0649e3e16d06d0d972bbe143af1a187f
 model1:
   emb_dim: 512
   attention_dim: 512
   decoder_dim: 512
   encoder_type: efficientnetB0
+<<<<<<< HEAD
   tf_encoder: 6
   tf_decoder: 6
   load_model_path: /home/zihanchen/results_training/multi_lg+pubchem+chembl+rdkitclear/E0+6TFE+6TFD/graph_save/model-emb_dim_512-attention_dim_512-decoder_dim_512-dropout_0.5-batch_size_512/
@@ -96,3 +102,13 @@ model1:
 #  tf_decoder: 0
 #  load_model_path: /home/zihanchen/results_training/multi_lg+pubchem+chembl+rdkitclear/E0+6TFE+6TFD/graph_save/model-emb_dim_512-attention_dim_512-decoder_dim_512-dropout_0.5-batch_size_512/
 #  load_model_num: 9
+=======
+  load_model_name: 0
+
+model2:
+  emb_dim: 512
+  attention_dim: 512
+  decoder_dim: 512
+  encoder_type: efficientnetB7
+  load_model_name: 1
+>>>>>>> 033783af0649e3e16d06d0d972bbe143af1a187f

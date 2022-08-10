@@ -14,7 +14,11 @@ from rdkit.DataStructs import FingerprintSimilarity as FPS
 from rdkit.Chem import MolFromSmiles,RDKFingerprint
 
 from model.Network import Encoder, DecoderWithAttention
+<<<<<<< HEAD
 #from .Predictor import Predict
+=======
+from model.Predictor import Predict
+>>>>>>> 033783af0649e3e16d06d0d972bbe143af1a187f
 from utils import make_directory, decode_predicted_sequences
 
 import ray
@@ -480,8 +484,12 @@ class MSTS:
         # trained_state = torch.load(....)
         #
 
+<<<<<<< HEAD
         decoder_checkpoint = '{}/decoder{}.pkl'.format(self._model_load_path, str(self._model_load_num))
         print(decoder_checkpoint)
+=======
+
+>>>>>>> 033783af0649e3e16d06d0d972bbe143af1a187f
 #lg
         #pubchem
         self._decoder.load_state_dict(
@@ -489,8 +497,11 @@ class MSTS:
                        map_location=self._device)
         )
 
+<<<<<<< HEAD
         #print(('{}/decoder{}.pkl'.format(self._model_load_path, str(self._model_load_num))
 
+=======
+>>>>>>> 033783af0649e3e16d06d0d972bbe143af1a187f
         try:
             self._encoder.load_state_dict(
                 torch.load('{}/encoder{}.pkl'.format(self._model_load_path, str(self._model_load_num)),

@@ -3,6 +3,7 @@ This system suports converting chemical image into SMILES and other chemical rep
 
 ## Install Enviroment
 
+<<<<<<< HEAD
 conda env create --name chem_info_env --file utils/chem_info.yml
 
 ## Prediction
@@ -18,3 +19,5 @@ python one_input_pred.py | tee log.csv
 
 
 Then check predicted information in log.csv and redrawn image in folder /model/sutils/pred_img
+=======
+>>>>>>> 033783af0649e3e16d06d0d972bbe143af1a187f
