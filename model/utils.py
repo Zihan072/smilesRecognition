@@ -113,7 +113,7 @@ def convert_smiles(smiles):
 
         descrip = description(elem_num,bonds_num,atoms_num,weights)
         print('CID in PubChem:',compounds)
-        print('Input SMILES:',input_smiles)
+        #print('Input SMILES:',input_smiles)
         print('IUPAC Name:',iupac_name)
         print('Sum Formula:',sum_formula)
         print('Isomeric SMILES:',isomeric_smiles)
@@ -126,7 +126,7 @@ def convert_smiles(smiles):
         print(descrip)
 
         print('Synonyms:',synonyms)
-        print('='*200)
+        #print('='*200)
 
     except:
         print("Invalid SMILES: This SMILES string doesn't exist in PubChem library.")

@@ -6,12 +6,23 @@ import torchvision.transforms as transforms
 import time
 from rdkit import Chem
 from rdkit.Chem import Draw
-
+import glob,os
 
 from model.Model import MSTS
 from src.datasets import SmilesDataset, PNGSmileDataset
 from src.config import input_data_dir, base_file_name, test_dir
 from utils import logger, make_directory, load_reversed_token_map, smiles_name_print, str2bool, convert_smiles
+
+#Readme
+# # smilesRecognition
+# This system suports converting chemical image into SMILES and other chemical representations.
+#
+# ## Install Enviroment
+# conda env create --name chem_info_env --file utils/chem_info.yml
+#
+# ## Prediction
+#
+
 
 
 def one_input():
@@ -60,7 +71,7 @@ def one_input():
 ### Reversed_token_file used to map numbers to string.
 
 
-    reversed_token_map_dir = '/cvhci/temp/zihanchen/data/lg_PubChem1M_ChEMBL75_RDkitclear/input_data/REVERSED_TOKENMAP_seed_123_max75smiles.json'
+
 
     config = parser.parse_args()
 
@@ -73,34 +84,49 @@ def one_input():
     #     model = MSTS(config) #create one instance of the model
 
 
+
+
+
     if config.work_type == 'one_input_pred':
         #TODO shows all possible smiles
         #input one sample for application
         #from src.config import reversed_token_map_dir
         #from .utils import convert_smiles
         #ray.init()
-        image = '0.png'
-        reversed_token_map = load_reversed_token_map(reversed_token_map_dir)
 
-        if config.grayscale is not None:
-            transform = transforms.Compose([transforms.Compose([normalize]),
-                                            transforms.Grayscale(3)])
+        reversed_token_map_dir = '/cvhci/temp/zihanchen/data/lg_PubChem1M_ChEMBL75_RDkitclear/input_data/REVERSED_TOKENMAP_seed_123_max75smiles.json'
+        imgs = glob.glob("./utils/input_img/*.png")
+        path = './utils/pred_img/'
+        print(imgs)
 
-        else:
-            transform = transforms.Compose([normalize])
+        for img in imgs:
+            print('='*100)
+            image = img
+            img_name = os.path.basename(image)
+            new_img_name = 'new_' + img_name
+            print(new_img_name)
+            reversed_token_map = load_reversed_token_map(reversed_token_map_dir)
 
-        model.model_load()
+            if config.grayscale is not None:
+                transform = transforms.Compose([transforms.Compose([normalize]),
+                                                transforms.Grayscale(3)])
 
-        smiles = model.one_test(image, reversed_token_map, transform)
-        print('Generated SMILES:', smiles)
-        convert_smiles(smiles)
-        try:
-            smiles_g = Chem.MolFromSmiles(smiles)
-            # smile_plt is the image so we can directly save it.
-            smile_plt = Draw.MolToImage(smiles_g, size = (300,300))
-            smile_plt.save("new.png")
-        except ValueError:
-            print("Predicted SMILES" + smiles + " couldn't be redrawn as chemical structure.")
+            else:
+                transform = transforms.Compose([normalize])
+
+            model.model_load()
+
+            smiles = model.one_test(image, reversed_token_map, transform)
+            print('Predicted SMILES:', smiles)
+            convert_smiles(smiles)
+            try:
+                img_path = os.path.join(path, new_img_name)
+                smiles_g = Chem.MolFromSmiles(smiles)
+                # smile_plt is the image so we can directly save it.
+                smile_plt = Draw.MolToImage(smiles_g, size = (300,300))
+                smile_plt.save(img_path)
+            except ValueError:
+                print("Predicted SMILES" + smiles + " couldn't be redrawn as chemical structure.")
 
 
 
