@@ -62,7 +62,7 @@ def one_input():
 
     parser.add_argument('--model_save_path', type=str, default='graph_save', help='model save path')
     parser.add_argument('--model_load_path', type=str, default='./src/model_path', help='model load path')
-    parser.add_argument('--model_load_num', type=int, default=9, help='epoch number of saved model')
+    parser.add_argument('--model_load_num', type=int, default=11, help='epoch number of saved model')
     parser.add_argument('--test_file_path', type=str, default=test_dir, help='test file path')
     parser.add_argument('--grayscale', type=str2bool, default=True, help='gray scale images ')
     parser.add_argument('--reversed_token_map_dir)', type=str, default=True, help='gray scale images ')

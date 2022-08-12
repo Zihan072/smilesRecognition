@@ -42,10 +42,8 @@ from pathlib import Path
 # random_seed = 123
 # ### Reversed_token_file used to map numbers to string.
 # reversed_token_map_dir = input_data_dir/ f'REVERSED_TOKENMAP_{base_file_name}.json'
-#
-<<<<<<< HEAD
 
-=======
+
 # ###Test fromPubChem <75
 # test_dir = '/cvhci/temp/zihanchen/data/testset_isomeric/test_img_100K/'
 # sample_submission_dir = '/cvhci/temp/zihanchen/data/testset_isomeric/test_100K.csv'
@@ -57,14 +55,13 @@ from pathlib import Path
 # sample_submission_dir = '/cvhci/temp/zihanchen/data/testset_isomeric/test_100K_75to100.csv'
 # generate_submission_dir = 'test_100K_75to100_pred.csv'
 # sample_submission_labels_dir = '/cvhci/temp/zihanchen/data/testset_isomeric/test_100K_75to100_labels.csv'
->>>>>>> 033783af0649e3e16d06d0d972bbe143af1a187f
+
 
 # ###submission test
 # test_dir = '/cvhci/temp/zihanchen/data/DACON_SMILES_data/test/'
 # sample_submission_dir = '/cvhci/temp/zihanchen/data/DACON_SMILES_data/sample_submission.csv'
 # generate_submission_dir = 'sample_submission.csv'
 
-<<<<<<< HEAD
 
 # ###Test fromPubChem <75
 # test_dir = '/cvhci/temp/zihanchen/data/testset_isomeric/test_img_100K/'
@@ -72,15 +69,13 @@ from pathlib import Path
 # generate_submission_dir = 'test_100K_pred.csv'
 # sample_submission_labels_dir = '/cvhci/temp/zihanchen/data/testset_isomeric/test_100K_labels.csv'
 
-=======
->>>>>>> 033783af0649e3e16d06d0d972bbe143af1a187f
+
 ###RDKit test clear
 # test_dir = '/cvhci/temp/zihanchen/data/RDkit_SMILES_gray/test_clear/'
 # sample_submission_dir = '/cvhci/temp/zihanchen/data/RDkit_SMILES_gray/test_RDKit.csv'
 # generate_submission_dir = 'test_RDKit_clear_pred.csv'
 # sample_submission_labels_dir = '/cvhci/temp/zihanchen/data/RDkit_SMILES_gray/test_RDKit_labels.csv'
 
-<<<<<<< HEAD
 
 ###RDKit test noise
 test_dir = '/cvhci/temp/zihanchen/data/RDkit_SMILES_gray/test_noise/'
@@ -107,7 +102,7 @@ sample_submission_labels_dir = '/cvhci/temp/zihanchen/data/RDkit_SMILES_gray/tes
 # sample_submission_dir = '/cvhci/temp/zihanchen/data/ChEMBL/chembl_100/test.csv'
 # generate_submission_dir = 'test_chem75-100_pred.csv'
 # sample_submission_labels_dir = '/cvhci/temp/zihanchen/data/ChEMBL/chembl_100/test_labels.csv'
-=======
+
 ###RDKit test noise
 # test_dir = '/cvhci/temp/zihanchen/data/RDkit_SMILES_gray/test_noise/'
 # sample_submission_dir = '/cvhci/temp/zihanchen/data/RDkit_SMILES_gray/test_RDKit.csv'
@@ -121,11 +116,10 @@ sample_submission_labels_dir = '/cvhci/temp/zihanchen/data/RDkit_SMILES_gray/tes
 # sample_submission_labels_dir = '/cvhci/temp/zihanchen/data/ChEMBL/chembl/test_labels.csv'
 
 ###ChEMBL test 75<length<100
-test_dir = '/cvhci/temp/zihanchen/data/ChEMBL/chembl_100/test/'
-sample_submission_dir = '/cvhci/temp/zihanchen/data/ChEMBL/chembl_100/test.csv'
-generate_submission_dir = 'test_chem75-100_pred.csv'
-sample_submission_labels_dir = '/cvhci/temp/zihanchen/data/ChEMBL/chembl_100/test_labels.csv'
->>>>>>> 033783af0649e3e16d06d0d972bbe143af1a187f
+# test_dir = '/cvhci/temp/zihanchen/data/ChEMBL/chembl_100/test/'
+# sample_submission_dir = '/cvhci/temp/zihanchen/data/ChEMBL/chembl_100/test.csv'
+# generate_submission_dir = 'test_chem75-100_pred.csv'
+# sample_submission_labels_dir = '/cvhci/temp/zihanchen/data/ChEMBL/chembl_100/test_labels.csv'
 
 
 #
@@ -151,53 +145,35 @@ sample_submission_labels_dir = '/cvhci/temp/zihanchen/data/ChEMBL/chembl_100/tes
 ## Multi-dataset：
 # lg dataset + 1M PubChem
 """train"""
-<<<<<<< HEAD
-data_dir = Path('/cvhci/temp/zihanchen/data/PubChem5M_ChEMBL100')
+
+data_dir = Path('/cvhci/temp/zihanchen/data/PubChem5M_PubChem5Mnoise_RDkitclear_noise')
 #data_dir_1 = Path('/cvhci/temp/zihanchen/data/DACON_SMILES_data') #DACON
-data_dir_1 = Path('/cvhci/temp/zihanchen/data/new_images_5M_100')
+data_dir_1 = Path('/cvhci/temp/zihanchen/data/new_images_5M_75')
 #data_dir_2 = Path('/cvhci/temp/zihanchen/data/new_images5M_75_noise')
 
 #data_dir_2 = Path('/cvhci/temp/zihanchen/data/new_images_1M_group2') #PubChem_1M_group2 <75
 #data_dir_2 = Path('/cvhci/temp/zihanchen/data/new_images_1M_group1')
-data_dir_3 = Path('/cvhci/temp/zihanchen/data/ChEMBL/chembl_100')
-=======
-data_dir = Path('/cvhci/temp/zihanchen/data/lg_PubChem1M_RDkitclear')
-#data_dir_1 = Path('/cvhci/temp/zihanchen/data/DACON_SMILES_data') #DACON
-data_dir_3 = Path('/cvhci/temp/zihanchen/data/new_images_5M')
-#data_dir_2 = Path('/cvhci/temp/zihanchen/data/new_images_1M_group2') #PubChem_1M_group2 <75
-#data_dir_2 = Path('/cvhci/temp/zihanchen/data/new_images_1M_group1')
-data_dir_1 = Path('/cvhci/temp/zihanchen/data/ChEMBL/chembl_100')
->>>>>>> 033783af0649e3e16d06d0d972bbe143af1a187f
-#data_dir_3 = Path('/cvhci/temp/zihanchen/data/RDkit_SMILES_gray')
-data_dir_2 = Path('/cvhci/temp/zihanchen/data/ChEMBL/chembl')
+#data_dir_3 = Path('/cvhci/temp/zihanchen/data/ChEMBL/chembl_100')
+data_dir_3 = Path('/cvhci/temp/zihanchen/data/RDkit_SMILES_gray')
+data_dir_2 = Path('/cvhci/temp/zihanchen/data/new_images_5M_75_noise')
 
 train_dir_1 = data_dir_1 / 'train' # training images path #DACON
 train_dir_2 = data_dir_2 / 'train' # training images path #PubChem
-train_dir_3 = data_dir_3 / 'train' # training images path #RDKit_clear
-<<<<<<< HEAD
-#train_dir_4 = data_dir_3 / 'train_noise' # training images path #RDKit_noise
-=======
-#train_dir_4 = data_dir_4 / 'train' # training images path #RDKit_noise
->>>>>>> 033783af0649e3e16d06d0d972bbe143af1a187f
+train_dir_3 = data_dir_3 / 'train_clear' # training images path #RDKit_clear
+train_dir_4 = data_dir_3 / 'train_noise' # training images path #RDKit_noise
 
 
 # train_modified contains information of the train/validation split in a pickle file format. I saved in pickle just for efficiency
 train_pickle_dir_1 = data_dir_1 /'train_modified.pkl'
 train_pickle_dir_2 = data_dir_2 /'train_modified.pkl'
 train_pickle_dir_3 = data_dir_3 /'train_modified.pkl'
-<<<<<<< HEAD
-#train_pickle_dir_4 = data_dir_3 /'train_modified.pkl'
-
-### Data directory generated by us
-input_data_dir = data_dir / 'input_data' # output path
-base_file_name = 'seed_123_max100smiles'
-=======
-#train_pickle_dir_4 = data_dir_4 /'train_modified.pkl'
+train_pickle_dir_4 = data_dir_3 /'train_modified.pkl'
 
 ### Data directory generated by us
 input_data_dir = data_dir / 'input_data' # output path
 base_file_name = 'seed_123_max75smiles'
->>>>>>> 033783af0649e3e16d06d0d972bbe143af1a187f
+
+
 ### seed for train/val split
 random_seed = 123
 
@@ -208,13 +184,13 @@ train_dirs = list()
 train_dirs.append(train_dir_1)
 train_dirs.append(train_dir_2)
 train_dirs.append(train_dir_3)
-#train_dirs.append(train_dir_4)
+train_dirs.append(train_dir_4)
 
 train_pickle_dirs = list()
 train_pickle_dirs.append(train_pickle_dir_1)
 train_pickle_dirs.append(train_pickle_dir_2)
 train_pickle_dirs.append(train_pickle_dir_3)
-#train_pickle_dirs.append(train_pickle_dir_4)
+train_pickle_dirs.append(train_pickle_dir_4)
 
 '''generate train_pickle'''
 train_csv_dir = data_dir / 'train.csv' #generate train_pickle

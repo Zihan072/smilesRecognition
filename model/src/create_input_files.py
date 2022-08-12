@@ -47,7 +47,7 @@ if __name__ == '__main__':
                         train_pickle_dirs=train_pickle_dirs,
                         output_folder=input_data_dir,
                         min_token_freq=5,
-                        max_len=100,
+                        max_len=75,
                         random_seed=random_seed,
                         save_hdf5 = config['hdf5'])
 
