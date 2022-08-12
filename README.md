@@ -29,9 +29,9 @@ conda env create --name chem_info_env --file utils/chem_info.yml
 
 ### Prediction
 
-Put input images under the folder */model/utils/input_img*
+Put images which you want to predict under the folder */model/utils/input_img*
 
-Run commad under path model/
+Run commad under path *model/*
 
 ```
 python one_input_pred.py | tee log.csv
@@ -39,4 +39,4 @@ python one_input_pred.py | tee log.csv
 
 
 
-The predicted images are save in folder *"/model/utils/pred_img"*
+You can find the predicted images in folder *"/model/utils/pred_img"*
