@@ -1,5 +1,5 @@
 import os
-<<<<<<< HEAD
+
 import pandas as pd
 from rdkit import Chem
 from rdkit.Chem import Draw
@@ -75,7 +75,6 @@ for idx in range(data_len):
     print("count:",count)
 
 
-=======
 
 input_file = '/cvhci/temp/zihanchen/data/new_images_5M/train.csv'
 input_dir = '/cvhci/temp/zihanchen/data/RDkit_SMILES_gray/clear_img/'
@@ -110,43 +109,10 @@ tail -n 3000 input.csv >> output.csv
 head -n +3000 input.csv > input.csv.truncated   #head -n +number returns everything but the n last line. ps:dosen't work, 
 #just use head -n 955820 instead of it 
 mv input.csv.truncated input.csv
->>>>>>> 033783af0649e3e16d06d0d972bbe143af1a187f
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-<<<<<<< HEAD
-=======
-
-
-
 '''
->>>>>>> 033783af0649e3e16d06d0d972bbe143af1a187f
+
+
+
+
+
+

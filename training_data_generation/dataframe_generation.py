@@ -36,14 +36,11 @@ length = []
 #Even if only data with a length of 100 or less were generated previously, it was still a large amount of data,
 # so it was impossible to use all of them for training.
 #we extract 5 million as backup
-<<<<<<< HEAD
+
 n_images = 20000000 #20M
 print("SMILES in total:".format(n_images))
 new_path = 'train_dataset_20M/'
-=======
-n_images = 10000000 #10M
-new_path = 'train_dataset_10M/'
->>>>>>> 033783af0649e3e16d06d0d972bbe143af1a187f
+
 #14% of 1 million needs 200gb to store .npy files, very lagre and needs long time.
 
 if os.path.exists(new_path) == False:
@@ -99,11 +96,9 @@ for i in range(1, 32) :
     g_filtered = filtered_df[filtered_df['group'] == i]
     g_filtered.to_csv(new_path + "filtered_df_group{}.csv".format(i)) 
 '''
-<<<<<<< HEAD
+
 n_groups = 4
-=======
-n_groups = 10
->>>>>>> 033783af0649e3e16d06d0d972bbe143af1a187f
+
 group_size = math.ceil(count / n_groups)
 #mat.ceil:
 for i in range(1, n_groups+1) :

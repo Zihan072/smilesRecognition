@@ -48,7 +48,7 @@ def decode_predicted_sequences(predicted_sequence_list,reversed_token_map):
             break
         else:
             predicted_sequence_str+=reversed_token_map[e]
-    
+
     return predicted_sequence_str
 
 
@@ -113,11 +113,7 @@ def convert_smiles(smiles):
 
         descrip = description(elem_num,bonds_num,atoms_num,weights)
         print('CID in PubChem:',compounds)
-<<<<<<< HEAD
         #print('Input SMILES:',input_smiles)
-=======
-        print('Input SMILES:',input_smiles)
->>>>>>> 033783af0649e3e16d06d0d972bbe143af1a187f
         print('IUPAC Name:',iupac_name)
         print('Sum Formula:',sum_formula)
         print('Isomeric SMILES:',isomeric_smiles)
@@ -130,11 +126,7 @@ def convert_smiles(smiles):
         print(descrip)
 
         print('Synonyms:',synonyms)
-<<<<<<< HEAD
         #print('='*200)
-=======
-        print('='*200)
->>>>>>> 033783af0649e3e16d06d0d972bbe143af1a187f
 
     except:
         print("Invalid SMILES: This SMILES string doesn't exist in PubChem library.")

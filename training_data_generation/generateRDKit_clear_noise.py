@@ -27,15 +27,10 @@ import cv2
 # img_path_noise = '/cvhci/temp/zihanchen/data/RDkit_SMILES_gray/train_noise'#save new generated images with adding some noises.
 
 # #generate data for train
-<<<<<<< HEAD
+
 df = pd.read_csv("/cvhci/temp/zihanchen/data/new_images_5M_75_noise/train.csv")
 #img_path = '/cvhci/temp/zihanchen/data/new_images5M_75_noise/train' # save new images
 img_path_noise = '/cvhci/temp/zihanchen/data/new_images_5M_75_noise/train'#save new generated images with adding some noises.
-=======
-df = pd.read_csv("/cvhci/temp/zihanchen/data/new_images5M_75_noise/train.csv")
-#img_path = '/cvhci/temp/zihanchen/data/new_images5M_75_noise/train' # save new images
-img_path_noise = '/cvhci/temp/zihanchen/data/new_images5M_75_noise/train'#save new generated images with adding some noises.
->>>>>>> 033783af0649e3e16d06d0d972bbe143af1a187f
 
 print(img_path_noise)
 if not os.path.exists(img_path_noise):
@@ -48,11 +43,10 @@ else:
 # else:
 #     pass
 
-<<<<<<< HEAD
+
 file_writer = open("/cvhci/temp/zihanchen/data/new_images_5M_75_noise/train_new.csv", 'w')
 file_writer.write("file_name,SMILES"+"\n")
-=======
->>>>>>> 033783af0649e3e16d06d0d972bbe143af1a187f
+
 
 '''
 Draw molecules
@@ -77,12 +71,9 @@ for _, row in df.iterrows(): #Iterate over DataFrame rows as (index, Series) pai
         d.DrawMolecule(mol)
         d.FinishDrawing()
         d.WriteDrawingText("0.png")
-<<<<<<< HEAD
+
         #img_clear = cv2.imread("0.png", cv2.IMREAD_COLOR)
         img_clear = cv2.imread("0.png", cv2.IMREAD_GRAYSCALE)
-=======
-        img_clear = cv2.imread("0.png", cv2.IMREAD_COLOR)
->>>>>>> 033783af0649e3e16d06d0d972bbe143af1a187f
 
         #img_full_name_clear = os.path.join(img_path, idx)
         #cv2.imwrite(img_full_name_clear, img_clear)
@@ -102,10 +93,8 @@ for _, row in df.iterrows(): #Iterate over DataFrame rows as (index, Series) pai
 
         img_full_name_noise = os.path.join(img_path_noise, idx)
         cv2.imwrite(img_full_name_noise, img_noisy)
-<<<<<<< HEAD
         file_writer.write(idx + "," + smiles + "\n")
-=======
->>>>>>> 033783af0649e3e16d06d0d972bbe143af1a187f
+
 
     except IOError:
         print("Image file " + idx +" not accessible")

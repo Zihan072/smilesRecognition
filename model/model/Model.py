@@ -14,11 +14,7 @@ from rdkit.DataStructs import FingerprintSimilarity as FPS
 from rdkit.Chem import MolFromSmiles,RDKFingerprint
 
 from model.Network import Encoder, DecoderWithAttention
-<<<<<<< HEAD
 #from .Predictor import Predict
-=======
-from model.Predictor import Predict
->>>>>>> 033783af0649e3e16d06d0d972bbe143af1a187f
 from utils import make_directory, decode_predicted_sequences
 
 import ray
@@ -214,7 +210,7 @@ class MSTS:
         elapse = end_time - start_time
         training_time = str(datetime.timedelta(seconds=int(elapse)))
         print("mean_loss %.6f ; mean_accuracy %.5f ; img_per_sec %6.2f; time: %s"
-             % (mean_loss, mean_accuracy, img_per_sec, training_time))
+              % (mean_loss, mean_accuracy, img_per_sec, training_time))
         #logger([mean_loss, mean_accuracy, img_per_sec, training_time])
 
         return mean_loss, mean_accuracy
@@ -312,8 +308,8 @@ class MSTS:
         # 2. the current "model" object already contains a model -> you create 1 extra model for nothing
         for conf in p_configs.values():
             predictors.append(Predict.remote(conf, self._device,
-                              self._gpu_non_block,
-                              self._decode_length, self._model_load_path))
+                                             self._gpu_non_block,
+                                             self._decode_length, self._model_load_path))
         # 1. go to main.py and load yaml
         # 2. for each p_config : make a new config with values from p_config overwritten over the default values from main.py
         # 3. create a new model = MSTS(p_config)
@@ -484,24 +480,17 @@ class MSTS:
         # trained_state = torch.load(....)
         #
 
-<<<<<<< HEAD
         decoder_checkpoint = '{}/decoder{}.pkl'.format(self._model_load_path, str(self._model_load_num))
         print(decoder_checkpoint)
-=======
-
->>>>>>> 033783af0649e3e16d06d0d972bbe143af1a187f
-#lg
+        #lg
         #pubchem
         self._decoder.load_state_dict(
             torch.load('{}/decoder{}.pkl'.format(self._model_load_path, str(self._model_load_num)),
                        map_location=self._device)
         )
 
-<<<<<<< HEAD
         #print(('{}/decoder{}.pkl'.format(self._model_load_path, str(self._model_load_num))
 
-=======
->>>>>>> 033783af0649e3e16d06d0d972bbe143af1a187f
         try:
             self._encoder.load_state_dict(
                 torch.load('{}/encoder{}.pkl'.format(self._model_load_path, str(self._model_load_num)),
