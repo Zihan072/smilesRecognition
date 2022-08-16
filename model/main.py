@@ -155,7 +155,7 @@ def main():
             print('the test file path is none')
 
     elif config.work_type == 'ensemble_test':
-        #TODO
+
         #for experiments esamble test, easy for caculating tanimoto
         #for application esamble prediction, evaluate and generate more information from platfrom PubChem for users.
         from src.config import sample_submission_dir, generate_submission_dir, reversed_token_map_dir
@@ -199,7 +199,10 @@ def main():
             model_ = MSTS(model_config)
             model_.model_load()
             print('model loaded')
+            model_._encoder.eval()
+            model_._decoder.eval()
             models.append(model_)
+
 
         if not config.test_file_path == None:
 
