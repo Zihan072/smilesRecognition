@@ -12,6 +12,9 @@ import os
 import rdkit
 from rdkit import Chem
 from rdkit.Chem import Draw
+import requests
+import cairosvg
+from cairosvg import svg2png
 
 #remove the nan value
 # df = pd.read_csv('chemID+SMILES.csv')
@@ -27,13 +30,13 @@ from rdkit.Chem import Draw
 # df.to_csv('chemID+SMILES_75_100_notnan.csv')
 
 df = pd.read_csv('chemID+SMILES_notnan.csv')
-path = '/cvhci/temp/zihanchen/data/ChEMBL/chembl' # Saving new data
+path = '/cvhci/temp/zihanchen/data/ChEMBL/imgFromChEMBL' # Saving new data
 if not os.path.exists(path):
     os.mkdir(path)
 else:
     pass
 
-img_path = path + '/test'
+img_path = path + '/train'
 #img_path = './train'
 
 if not os.path.exists(img_path):
@@ -41,15 +44,14 @@ if not os.path.exists(img_path):
 else:
     pass
 
-file_writer = open(path + "/test.csv", 'w')
-#file_writer = open("train.csv", 'w')
+file_writer = open(path + "/train.csv", 'w')
 file_writer.write("file_name,SMILES"+"\n")
 
 
 
 img_num = 0
-print(len(df.tail(100000)))
-for _, row in df.tail(100000).iterrows():
+print(len(df))
+for _, row in df.head(1761548).iterrows():
     #print(_)
     #print(row)
     id = row['ChEMBL ID']
@@ -61,27 +63,38 @@ for _, row in df.tail(100000).iterrows():
     #print("img_name:", img_name)
     img_num += 1
     img_full_name = os.path.join(img_path, img_name)
+    #svg_full_name = os.path.join(img_path, id)
+    url_head = 'https://www.ebi.ac.uk/chembl/api/data/image/'
+    url = url_head + id
+    print(url)
     try:
-        smiles_g = Chem.MolFromSmiles(smiles)
-        # smile_plt is the image so we can directly save it.
-        smile_plt = Draw.MolToImage(smiles_g, size = (300,300))
-        smile_plt.save(img_full_name)
+        #access web service by ChEMBL
+        #request image from web service
+        img_svg = requests.get(url,timeout=10)
+        #open(svg_full_name, 'wb').write(img_svg.content)
+    except ValueError:
+        print("Image" + id + " couldn't be requested in 10s.")
+    else:
+        svg = img_svg.content
+        #print(svg)
+        svg2png(bytestring=svg, write_to=img_full_name)
         file_writer.write(img_name + "," + smiles + "\n")
-        assert len(smiles) <= 100
-        del (smile_plt)
+        del (img_svg)
+        del (svg)
+
+
+#draw with the library RDKit
+        # smiles_g = Chem.MolFromSmiles(smiles)
+        # # smile_plt is the image so we can directly save it.
+        # smile_plt = Draw.MolToImage(smiles_g, size = (300,300))
+        # smile_plt.save(img_full_name)
+        # file_writer.write(img_name + "," + smiles + "\n")
+        # assert len(smiles) <= 100
+        # del (smile_plt)
 
         # except ValueError:
         #     pass
-    except ValueError:
-        print("Image file " + id + smiles + " not accessible")
 
-        # url_head = 'https://www.ebi.ac.uk/chembl/api/data/image/'
-        # url = url_head + id
-        # print(url)
-        # #request image from web service
-        # img = requests.get(url, timeout=600)
-        # with open(img_name, 'wb') as handler:
-        #     handler.write(img)
 
 
     if img_num % 1000 == 0 :
