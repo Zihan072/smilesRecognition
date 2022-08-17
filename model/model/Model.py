@@ -413,7 +413,8 @@ class MSTS:
 
 
         imgs = Image.open(image)
-        print(imgs.mode)
+        print("Input image mode:", imgs.mode)
+        print("Input image size", imgs.size)
         # if image channels is 4, img mode is RGBA convert RGBA into RGB
         if len(imgs.mode) == 4:
             x = np.array(imgs)
@@ -427,9 +428,9 @@ class MSTS:
         else:
             pass
 
-        print(imgs.mode)
+        #print(imgs.mode)
         imgs = self.png_to_tensor(imgs)
-        print(imgs.shape)
+        #print(imgs.shape)
 
 
         imgs = transform(imgs).to(self._device)
@@ -499,7 +500,7 @@ class MSTS:
         #
 
         decoder_checkpoint = '{}/decoder{}.pkl'.format(self._model_load_path, str(self._model_load_num))
-        print(decoder_checkpoint)
+        #print(decoder_checkpoint)
         #lg
         #pubchem
         self._decoder.load_state_dict(

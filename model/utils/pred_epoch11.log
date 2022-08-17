@@ -1,0 +1,290 @@
+Create Transformer Decoder
+Let's use 4 GPUs!
+====================================================================================================
+Strat to predict: 0.png
+The redrawn image: new_0.png
+Input image mode: RGB
+Input image size (300, 300)
+3
+USING NEW PREDICTION CODE ...
+Predicted SMILES: OC(=NCCc1ccncc1)[C@@H](NCCc1ccncc1)c1ccc(Cl)cc1Cl
+CID in PubChem: [Compound(89730917)]
+IUPAC Name: (2S)-2-(2,4-dichlorophenyl)-N-(2-pyridin-4-ylethyl)-2-(2-pyridin-4-ylethylamino)acetamide
+Sum Formula: C22H22Cl2N4O
+Isomeric SMILES: C1=CC(=C(C=C1Cl)Cl)[C@@H](C(=O)NCCC2=CC=NC=C2)NCCC3=CC=NC=C3
+Other Canonical SMILES: OC(=NCCc1ccncc1)C(NCCc1ccncc1)c1ccc(Cl)cc1Cl
+InChI: InChI=1S/C22H22Cl2N4O/c23-18-1-2-19(20(24)15-18)21(27-13-7-16-3-9-25-10-4-16)22(29)28-14-8-17-5-11-26-12-6-17/h1-6,9-12,15,21,27H,7-8,13-14H2,(H,28,29)/t21-/m0/s1
+InChIKeys AHTMWAMZTBCSAT-NRFANRHFSA-N
+Chemfig:
+\chemfig{Cl-[:330]-[:30]-[:330](-[:210,,,,draw=none]\mcfcringle{1.3})%
+-[:270](-[:210](-[:270]Cl)-[:150]-[:90])-[:330](<[:240]H)(%
+-[:60]\mcfabove{N}{H}--[:60]--[:60]-(-[:240,,,,draw=none]\mcfcringle{1.3})%
+-[:300]N-[:240]-[:180]-[:120])-[:330](-[:270,,,1]OH)=[:30]N-[:330]-[:30]%
+-[:330]-[:30]-[:330](-[:210,,,,draw=none]\mcfcringle{1.3})-[:270]N-[:210]%
+-[:150](-[:90])}
+This chemical structure contains 51 atoms and 53 bonds between them. There are 5 elements Cl,O,N,C,H, the corresponding number for each element is 2,1,4,22,22. Its weights is 429.3 in total.
+Synonyms: ['SCHEMBL15162613']
+====================================================================================================
+Strat to predict: train_2.png
+The redrawn image: new_train_2.png
+Input image mode: L
+Input image size (300, 300)
+2
+USING NEW PREDICTION CODE ...
+Predicted SMILES: O=C(O)C1=CC=CC(O)C1O
+CID in PubChem: [Compound(3)]
+IUPAC Name: 5,6-dihydroxycyclohexa-1,3-diene-1-carboxylic acid
+Sum Formula: C7H8O4
+Isomeric SMILES: C1=CC(C(C(=C1)C(=O)O)O)O
+Other Canonical SMILES: O=C(O)C1=CC=CC(O)C1O
+InChI: InChI=1S/C7H8O4/c8-5-3-1-2-4(6(5)9)7(10)11/h1-3,5-6,8-9H,(H,10,11)
+InChIKeys INCSWYKICIYAHB-UHFFFAOYSA-N
+Chemfig:
+\chemfig{HO-[:60,,2]-[:120]=_[:60]-=_[:300](-[:240](-[:300,,,1]OH)-[:180])-%
+(-[:300,,,1]OH)=[:60]O}
+This chemical structure contains 19 atoms and 19 bonds between them. There are 3 elements O,C,H, the corresponding number for each element is 4,7,8. Its weights is 156.14 in total.
+Synonyms: ['5,6-dihydroxycyclohexa-1,3-diene-1-carboxylic acid', '2,3-dihydroxy-2,3-dihydrobenzoic acid', '100459-00-5', '2,3-dihydro-2,3-dihydroxybenzoic acid', 'SCHEMBL638361', 'CHEBI:15941', 'DTXSID30274252', 'Q27098309']
+====================================================================================================
+Strat to predict: train_5.png
+The redrawn image: new_train_5.png
+Input image mode: RGB
+Input image size (300, 300)
+3
+USING NEW PREDICTION CODE ...
+Predicted SMILES: O=[N+]([O-])c1ccc(Cl)c([N+](=O)[O-])c1
+CID in PubChem: [Compound(6)]
+IUPAC Name: 1-chloro-2,4-dinitrobenzene
+Sum Formula: C6H3ClN2O4
+Isomeric SMILES: C1=CC(=C(C=C1[N+](=O)[O-])[N+](=O)[O-])Cl
+Other Canonical SMILES: O=[N+]([O-])c1ccc(Cl)c([N+](=O)[O-])c1
+InChI: InChI=1S/C6H3ClN2O4/c7-5-2-1-4(8(10)11)3-6(5)9(12)13/h1-3H
+InChIKeys VYZAHLCBVHPDDF-UHFFFAOYSA-N
+Chemfig:
+\chemfig{Cl-[:210]-[:150]-[:210](-[:330,,,,draw=none]\mcfcringle{1.3})%
+-[:270](-[:210]\mcfabove{N}{_{\mcfplus}}(=[:150]O)%
+-[:270]\mcfright{O}{^{\mcfminus}})-[:330]-[:30](-[:90])%
+-[:330]\mcfabove{N}{_{\mcfplus}}(-[:30]\mcfright{O}{^{\mcfminus}})=[:270]O}
+This chemical structure contains 16 atoms and 16 bonds between them. There are 5 elements Cl,O,N,C,H, the corresponding number for each element is 1,4,2,6,3. Its weights is 202.55 in total.
+Synonyms: ['1-chloro-2,4-dinitrobenzene', '2,4-Dinitrochlorobenzene', '97-00-7', 'Dinitrochlorobenzene', 'DNCB', 'Chlorodinitrobenzene', 'CDNB', '4-Chloro-1,3-dinitrobenzene', '2,4-Dinitrophenyl chloride', 'Benzene, 1-chloro-2,4-dinitro-', 'Dinitrochlorobenzol', '1,3-Dinitro-4-chlorobenzene', '2,4-Dinitro-1-chlorobenzene', '6-Chloro-1,3-dinitrobenzene', '1-Chloro-2,4-dinitrobenzol', 'ClDNB', 'DNPCl', '1-Chlor-2,4-dinitrobenzene', '1-Cloro-2,4-dinitrobenzene', '1-Chloor-2,4-dinitrobenzeen', '1-chloro-2,4-dinitro-benzene', 'UNII-GE3IBT7BMN', 'CHEBI:34718', 'NSC 6292', 'GE3IBT7BMN', 'NSC-6292', '2,4-dinitro chlorobenzene', 'NSC6292', 'DSSTox_CID_278', 'DSSTox_RID_75481', 'DSSTox_GSID_20278', '1-Chlor-2,4-dinitrobenzol', 'Caswell No. 389C', 'Dinitrochlorobenzene (VAN)', 'CAS-97-00-7', 'SMR000857169', 'CCRIS 1799', 'HSDB 5306', 'EINECS 202-551-4', 'chloro-2,4-dinitrobenzene', '1-Chloor-2,4-dinitrobenzeen [Dutch]', '1-Chloro-2,4-dinitrobenzeen [Dutch]', '1-Chloro-2,4-dinitrobenzol [German]', 'EPA Pesticide Chemical Code 055102', '1-Cloro-2,4-dinitrobenzene [Italian]', '1-Chloro-2,4-dinitrobenzeen', 'AI3-01053', '2,4-dinitrochlorbenzene', 'WLN: WNR BG ENW', '2,4-dinitro-chlorobenzene', 'Epitope ID:110163', 'EC 202-551-4', '2,4-dinitro-chloro-benzene', '2,4dinitro-1-chlorobenzene', 'SCHEMBL39251', '2-chloro-1,5-dinitrobenzene', 'MLS001332459', 'MLS001332460', 'BIDD:ER0694', '1-chloro-2,4-dinitro benzene', 'CHEMBL292687', 'DTXSID6020278', 'HMS2233O04', 'BCP27853', 'STR01511', 'ZINC1540301', 'Tox21_201956', 'Tox21_302802', 'BBL009322', 'BDBM50458521', 'MFCD00007075', 'STK387094', '1-Chloro-2,4-dinitrobenzene, 97%', 'AKOS000118946', '1 - Chloro - 2,4 - dinitrobenzene', '1-Chloro-2,4-dinitrobenzene, ~95%', 'DB11831', 'MCULE-9671248933', '1-Chloro-2,4-dinitrobenzene, >=99%', 'NCGC00164061-01', 'NCGC00164061-02', 'NCGC00164061-03', 'NCGC00256396-01', 'NCGC00259505-01', 'DB-057658', 'AM20050502', 'Q209216', '1-Chloro-2,4-dinitrobenzene, technical grade, 95%', 'W-100123', '1-Chloro-2,4-dinitrobenzene 100 microg/mL in Methanol', '3-(3-hydroxy-2-methyl-4-oxo-1-pyridyl)propanoic acid', 'F1908-0126']
+====================================================================================================
+Strat to predict: 9569671.png
+The redrawn image: new_9569671.png
+Input image mode: RGB
+Input image size (300, 300)
+3
+USING NEW PREDICTION CODE ...
+Predicted SMILES: CC(C)(CC(CC1=CC2=C(N1)C=NC=C2)(C(F)(F)F)O)C3=CC4=C(CCO4)C=C(C=C3)F
+CID in PubChem: [Compound()]
+IUPAC Name: None
+Sum Formula: None
+Isomeric SMILES: CC(C)(CC(CC1=CC2=C(N1)C=NC=C2)(C(F)(F)F)O)C3=CC4=C(CCO4)C=C(C=C3)F
+Other Canonical SMILES: CC(C)(CC(O)(Cc1cc2ccncc2[nH]1)C(F)(F)F)C1=CC2=C(C=C(F)C=C1)CCO2
+InChI: InChI=1S/C24H24F4N2O2/c1-22(2,17-3-4-18(25)9-16-6-8-32-21(16)11-17)14-23(31,24(26,27)28)12-19-10-15-5-7-29-13-20(15)30-19/h3-5,7,9-11,13,30-31H,6,8,12,14H2,1-2H3
+InChIKeys None
+Chemfig:
+\chemfig{-[:69](-[:294])(-[:31.5]-[:99]=_[:54]-[:9](-[:76.5]F)=_[:324]%
+-[:279]-[:342]-[:270]-[:198]O-[:126](=_[:54])-[:189]=_[:144])-[:151.5]%
+-[:211.5](-[:211.5](-[:271.5]F)(-[:211.5]F)-[:151.5]F)(-[:271.5,,,1]OH)%
+-[:151.5]-[:91.5]-[:145.5]-[:73.5](%
+-[:307.5,0.85,,,draw=none]\mcfcringle{1.03})-[:121.5]-[:61.5](%
+-[:301.5,,,,draw=none]\mcfcringle{1.3})-[:1.5]N-[:301.5]-[:241.5](-[:181.5]%
+)-[:289.5,,,1]NH(-[:217.5,,1])}
+This chemical structure contains 56 atoms and 59 bonds between them. There are 5 elements F,O,N,C,H, the corresponding number for each element is 4,2,2,24,24. Its weights is None in total.
+Synonyms: None
+====================================================================================================
+Strat to predict: train_10.png
+The redrawn image: new_train_10.png
+Input image mode: RGB
+Input image size (300, 300)
+3
+USING NEW PREDICTION CODE ...
+Predicted SMILES: Oc1cc(O)c(O)c(O)c1
+CID in PubChem: [Compound(12)]
+IUPAC Name: benzene-1,2,3,5-tetrol
+Sum Formula: C6H6O4
+Isomeric SMILES: C1=C(C=C(C(=C1O)O)O)O
+Other Canonical SMILES: Oc1cc(O)c(O)c(O)c1
+InChI: InChI=1S/C6H6O4/c7-3-1-4(8)6(10)5(9)2-3/h1-2,7-10H
+InChIKeys RDJUHLUBPADHNP-UHFFFAOYSA-N
+Chemfig:
+\chemfig{HO-[:30,,2]-[:90](-[:330,,,,draw=none]\mcfcringle{1.3})-[:30](%
+-[:90,,,1]OH)-[:330](-[:30,,,1]OH)-[:270](-[:330,,,1]OH)-[:210](-[:150])}
+This chemical structure contains 16 atoms and 16 bonds between them. There are 3 elements O,C,H, the corresponding number for each element is 4,6,6. Its weights is 142.11 in total.
+Synonyms: ['1,2,3,5-Benzenetetrol', '1,2,3,5-tetrahydroxybenzene', '634-94-6', 'benzene-1,2,3,5-tetrol', '5-hydroxypyrogallol', 'N-Benzylglycineethylester', 'UNII-6KQM6GV7J9', 'C03743', '6KQM6GV7J9', 'SCHEMBL67497', 'CHEBI:16746', 'DTXSID90212812', 'AKOS006312269', 'A8823', 'Q3302015']
+====================================================================================================
+Strat to predict: 9569667.png
+The redrawn image: new_9569667.png
+Input image mode: RGB
+Input image size (300, 300)
+3
+USING NEW PREDICTION CODE ...
+Predicted SMILES: CC(C)(C)NC1=NC=CC(=N1)C2=C(N=C(N2)C3=CC=C(C=C3)Cl)C4=CC=C(C=C4)F
+CID in PubChem: [Compound(11517408)]
+IUPAC Name: N-tert-butyl-4-[2-(4-chlorophenyl)-4-(4-fluorophenyl)-1H-imidazol-5-yl]pyrimidin-2-amine
+Sum Formula: C23H21ClFN5
+Isomeric SMILES: CC(C)(C)NC1=NC=CC(=N1)C2=C(N=C(N2)C3=CC=C(C=C3)Cl)C4=CC=C(C=C4)F
+Other Canonical SMILES: CC(C)(C)Nc1nccc(-c2nc(-c3ccc(Cl)cc3)[nH]c2-c2ccc(F)cc2)n1
+InChI: InChI=1S/C23H21ClFN5/c1-23(2,3)30-22-26-13-12-18(27-22)20-19(14-6-10-17(25)11-7-14)28-21(29-20)15-4-8-16(24)9-5-15/h4-13H,1-3H3,(H,28,29)(H,26,27,30)
+InChIKeys UMVLVOOKMJKGRE-UHFFFAOYSA-N
+Chemfig:
+\chemfig{-[:306](-[:246])(-[:186])-[:6]\mcfbelow{N}{H}-[:66]-[:126]N-[:66]%
+-[:6](-[:246,,,,draw=none]\mcfcringle{1.3})-[:306](-[:246]N-[:186])-[:6]%
+-[:60](-[:114]-[:54]-[:114](-[:234,,,,draw=none]\mcfcringle{1.3})-[:174](%
+-[:114]F)-[:234]-[:294]-[:354])(-[:294,0.85,,,draw=none]\mcfcringle{1.03})%
+-[:348,,,1]NH-[:276,,1](-[:204]N-[:132])-[:330]-[:270]-[:330](%
+-[:90,,,,draw=none]\mcfcringle{1.3})-[:30](-[:330]Cl)-[:90]-[:150](-[:210])%
+}
+This chemical structure contains 51 atoms and 54 bonds between them. There are 5 elements Cl,F,N,C,H, the corresponding number for each element is 1,1,5,23,21. Its weights is 421.9 in total.
+Synonyms: ['SCHEMBL709813', 'ZINC114436580', '876521-39-0', 'DA-40968', 'FT-0709350', 'N-tert-Butyl-4-[2-(4-chlorophenyl)-4-(4-fluorophenyl)-1H-imidazole-5-yl]pyrimidine-2-amine']
+====================================================================================================
+Strat to predict: 9569669.png
+The redrawn image: new_9569669.png
+Input image mode: RGB
+Input image size (300, 300)
+3
+USING NEW PREDICTION CODE ...
+Predicted SMILES: CC(C)CC(CO)N(CC1=CC2=CC=CC=C2O1)S(=O)(=O)C3=CC=C(C=C3)Cl
+CID in PubChem: [Compound(11517410)]
+IUPAC Name: N-(1-benzofuran-2-ylmethyl)-4-chloro-N-(1-hydroxy-4-methylpentan-2-yl)benzenesulfonamide
+Sum Formula: C21H24ClNO4S
+Isomeric SMILES: CC(C)CC(CO)N(CC1=CC2=CC=CC=C2O1)S(=O)(=O)C3=CC=C(C=C3)Cl
+Other Canonical SMILES: CC(C)CC(CO)N(Cc1cc2ccccc2o1)S(=O)(=O)c1ccc(Cl)cc1
+InChI: InChI=1S/C21H24ClNO4S/c1-15(2)11-18(14-24)23(28(25,26)20-9-7-17(22)8-10-20)13-19-12-16-5-3-4-6-21(16)27-19/h3-10,12,15,18,24H,11,13-14H2,1-2H3
+InChIKeys LIFPBIXANFFWHP-UHFFFAOYSA-N
+Chemfig:
+\chemfig{-(-[:60])-[:300]-[:240](-[:180]-[:120,,,2]HO)-[:300]N(-S(=[:270]O)%
+(=[:90]O)--[:60]-(-[:240,,,,draw=none]\mcfcringle{1.3})-[:300](-Cl)-[:240]%
+-[:180]-[:120])-[:240]-[:180]-[:126]-[:198](%
+-[:324,0.85,,,draw=none]\mcfcringle{1.03})-[:150]-[:210]-[:270](%
+-[:30,,,,draw=none]\mcfcringle{1.3})-[:330]-[:30](-[:90])-[:342]O(-[:54])}
+This chemical structure contains 52 atoms and 54 bonds between them. There are 6 elements Cl,S,O,N,C,H, the corresponding number for each element is 1,1,4,1,21,24. Its weights is 421.9 in total.
+Synonyms: ['SCHEMBL2334351']
+====================================================================================================
+Strat to predict: 10_noise.png
+The redrawn image: new_10_noise.png
+Input image mode: L
+Input image size (300, 300)
+2
+USING NEW PREDICTION CODE ...
+Predicted SMILES: O=C(NCc1nnc2n1CC[C@H](C(F)(F)F)C2)c1cc(Br)cs1
+CID in PubChem: [Compound(129356757)]
+IUPAC Name: 4-bromo-N-[[(7S)-7-(trifluoromethyl)-5,6,7,8-tetrahydro-[1,2,4]triazolo[4,3-a]pyridin-3-yl]methyl]thiophene-2-carboxamide
+Sum Formula: C13H12BrF3N4OS
+Isomeric SMILES: C1CN2C(=NN=C2CNC(=O)C3=CC(=CS3)Br)C[C@H]1C(F)(F)F
+Other Canonical SMILES: O=C(NCc1nnc2n1CCC(C(F)(F)F)C2)c1cc(Br)cs1
+InChI: InChI=1S/C13H12BrF3N4OS/c14-8-4-9(23-6-8)12(22)18-5-11-20-19-10-3-7(13(15,16)17)1-2-21(10)11/h4,6-7H,1-3,5H2,(H,18,22)/t7-/m0/s1
+InChIKeys HPXYSTZRDBHZHB-ZETCQYMHSA-N
+Chemfig:
+\chemfig{Br-[:342]-[:36](-[:270,0.85,,,draw=none]\mcfcringle{1.03})-[:324](%
+-[:252]S-[:180]-[:108])-[:18](=[:78]O)-[:318]\mcfbelow{N}{H}-[:18]-[:318]%
+-[:264]N-[:336]N-[:48](-[:174,0.85,,,draw=none]\mcfcringle{1.03})--[:60](%
+<[:320]H)(-[:40](-[:340]F)(-[:40]F)-[:100]F)-[:120]-[:180]-[:240]N(-[:300])%
+(-[:192])}
+This chemical structure contains 35 atoms and 37 bonds between them. There are 7 elements Br,S,F,O,N,C,H, the corresponding number for each element is 1,1,3,1,4,13,12. Its weights is 409.23 in total.
+Synonyms: ['ZINC390829945']
+====================================================================================================
+Strat to predict: train_1.png
+The redrawn image: new_train_1.png
+Input image mode: L
+Input image size (300, 300)
+2
+USING NEW PREDICTION CODE ...
+Predicted SMILES: CC(=O)OC(CC(=O)O)C[N+](C)(C)C
+CID in PubChem: [Compound(2)]
+IUPAC Name: (2-acetyloxy-3-carboxypropyl)-trimethylazanium
+Sum Formula: C9H18NO4+
+Isomeric SMILES: CC(=O)OC(CC(=O)O)C[N+](C)(C)C
+Other Canonical SMILES: CC(=O)OC(CC(=O)O)C[N+](C)(C)C
+InChI: InChI=1S/C9H17NO4/c1-7(11)14-8(5-9(12)13)6-10(2,3)4/h8H,5-6H2,1-4H3/p+1
+InChIKeys RDHQFKQIGNGIED-UHFFFAOYSA-O
+Chemfig:
+\chemfig{-[:60](=[:120]O)-O-[:300](-[:240]-[:300](-[:240,,,2]HO)=O)-%
+-[:60,,,2]^{\mcfplus}N(-[:120,,2])(-[,,2])-[:60,,2]}
+This chemical structure contains 32 atoms and 31 bonds between them. There are 4 elements O,N,C,H, the corresponding number for each element is 4,1,9,18. Its weights is 204.24 in total.
+Synonyms: ['1-Propanaminium, 2-(acetyloxy)-3-carboxy-N,N,N-trimethyl-, inner salt', 'SCHEMBL3259109', 'CHEMBL1625375', 'ALBB-032444', 'AKOS024284761', 'MCULE-4252227019', '3-Acetoxy-4-(trimethylaminio)butanoic acid', '5080-50-2', '992A622', 'R-(-)-2-ACETOXY-3-CARBOXY-N,N,N-TRIMETHYL-1-PROPANAMINIUM HYDROCHLORIDE']
+====================================================================================================
+Strat to predict: train_1 2.png
+The redrawn image: new_train_1 2.png
+Input image mode: RGB
+Input image size (300, 300)
+3
+USING NEW PREDICTION CODE ...
+Predicted SMILES: CC(=O)OC(CC(=O)O)C[N+](C)(C)C
+CID in PubChem: [Compound(2)]
+IUPAC Name: (2-acetyloxy-3-carboxypropyl)-trimethylazanium
+Sum Formula: C9H18NO4+
+Isomeric SMILES: CC(=O)OC(CC(=O)O)C[N+](C)(C)C
+Other Canonical SMILES: CC(=O)OC(CC(=O)O)C[N+](C)(C)C
+InChI: InChI=1S/C9H17NO4/c1-7(11)14-8(5-9(12)13)6-10(2,3)4/h8H,5-6H2,1-4H3/p+1
+InChIKeys RDHQFKQIGNGIED-UHFFFAOYSA-O
+Chemfig:
+\chemfig{-[:60](=[:120]O)-O-[:300](-[:240]-[:300](-[:240,,,2]HO)=O)-%
+-[:60,,,2]^{\mcfplus}N(-[:120,,2])(-[,,2])-[:60,,2]}
+This chemical structure contains 32 atoms and 31 bonds between them. There are 4 elements O,N,C,H, the corresponding number for each element is 4,1,9,18. Its weights is 204.24 in total.
+Synonyms: ['1-Propanaminium, 2-(acetyloxy)-3-carboxy-N,N,N-trimethyl-, inner salt', 'SCHEMBL3259109', 'CHEMBL1625375', 'ALBB-032444', 'AKOS024284761', 'MCULE-4252227019', '3-Acetoxy-4-(trimethylaminio)butanoic acid', '5080-50-2', '992A622', 'R-(-)-2-ACETOXY-3-CARBOXY-N,N,N-TRIMETHYL-1-PROPANAMINIUM HYDROCHLORIDE']
+====================================================================================================
+Strat to predict: 3_chem.png
+The redrawn image: new_3_chem.png
+Input image mode: RGBA
+Input image size (500, 500)
+3
+USING NEW PREDICTION CODE ...
+Predicted SMILES: Cc1cc(C)cc(N(Cc2ccc(CO)cc2)c2cc(C(=O)N3CCCC3)n(C)c2)c1
+CID in PubChem: [Compound(44568355)]
+IUPAC Name: [4-[N-[[4-(hydroxymethyl)phenyl]methyl]-3,5-dimethylanilino]-1-methylpyrrol-2-yl]-pyrrolidin-1-ylmethanone
+Sum Formula: C26H31N3O2
+Isomeric SMILES: CC1=CC(=CC(=C1)N(CC2=CC=C(C=C2)CO)C3=CN(C(=C3)C(=O)N4CCCC4)C)C
+Other Canonical SMILES: Cc1cc(C)cc(N(Cc2ccc(CO)cc2)c2cc(C(=O)N3CCCC3)n(C)c2)c1
+InChI: InChI=1S/C26H31N3O2/c1-19-12-20(2)14-23(13-19)29(16-21-6-8-22(18-30)9-7-21)24-15-25(27(3)17-24)26(31)28-10-4-5-11-28/h6-9,12-15,17,30H,4-5,10-11,16,18H2,1-3H3
+InChIKeys UFQDWXYZGWHYFO-UHFFFAOYSA-N
+Chemfig:
+\chemfig{-[:126]-[:186](-[:66,,,,draw=none]\mcfcringle{1.3})-[:126](-[:186]%
+)-[:66]-[:6](-[:306]-[:246])-[:66]N(-[:126]-[:186]-[:126]-[:186](%
+-[:306,,,,draw=none]\mcfcringle{1.3})-[:246](-[:186]-[:126,,,2]HO)-[:306]%
+-[:6]-[:66])-[:6]-[:60](-[:294,0.85,,,draw=none]\mcfcringle{1.03})-[:348](%
+-[:276]N(-[:204]-[:132])-[:330])-[:42](=[:342]O)-[:102]N-[:48]-[:120]%
+-[:192]-[:264](-[:336]\phantom{N})}
+This chemical structure contains 62 atoms and 65 bonds between them. There are 4 elements O,N,C,H, the corresponding number for each element is 2,3,26,31. Its weights is 417.5 in total.
+Synonyms: ['CHEMBL481686', 'BDBM50252126', 'N-[4-[(3,5-Dimethylphenyl)(4-hydroxymethylbenzyl)amino]-1-methylpyrrole-2-carbonyl]pyrrolidine']
+====================================================================================================
+Strat to predict: 2_chem.png
+The redrawn image: new_2_chem.png
+Input image mode: RGBA
+Input image size (500, 500)
+3
+USING NEW PREDICTION CODE ...
+Predicted SMILES: C1CSC(=C2CC/C(=C\C3=CC=CC=C3)/C2=O)/SC1
+CID in PubChem: [Compound(2470426)]
+IUPAC Name: (2E)-2-benzylidene-5-(1,3-dithian-2-ylidene)cyclopentan-1-one
+Sum Formula: C16H16OS2
+Isomeric SMILES: C1CSC(=C2CC/C(=C\C3=CC=CC=C3)/C2=O)SC1
+Other Canonical SMILES: O=C1C(=Cc2ccccc2)CCC1=C1SCCCS1
+InChI: InChI=1S/C16H16OS2/c17-15-13(11-12-5-2-1-3-6-12)7-8-14(15)16-18-9-4-10-19-16/h1-3,5-6,11H,4,7-10H2/b13-11+
+InChIKeys BNFFDBNDYBIIQW-ACCUITESSA-N
+Chemfig:
+\chemfig{O=[:90]-[:144](=[:198](-[:138]-[:78]-[:138]-[:198](%
+-[:318,,,,draw=none]\mcfcringle{1.3})-[:258]-[:318]-[:18])-[:258]H)-[:72]-%
+-[:288](-[:216])=[:342]-[:282]S-[:342]-[:42]-[:102]-[:162]S(-[:222])}
+This chemical structure contains 35 atoms and 37 bonds between them. There are 4 elements S,O,C,H, the corresponding number for each element is 2,1,16,16. Its weights is 288.4 in total.
+Synonyms: ['CHEMBL4515652']
+====================================================================================================
+Strat to predict: train_0.png
+The redrawn image: new_train_0.png
+Input image mode: L
+Input image size (300, 300)
+2
+USING NEW PREDICTION CODE ...
+Predicted SMILES: CC(=O)OC(CC(=O)[O-])C[N+](C)(C)C
+CID in PubChem: [Compound(1)]
+IUPAC Name: 3-acetyloxy-4-(trimethylazaniumyl)butanoate
+Sum Formula: C9H17NO4
+Isomeric SMILES: CC(=O)OC(CC(=O)[O-])C[N+](C)(C)C
+Other Canonical SMILES: CC(=O)OC(CC(=O)[O-])C[N+](C)(C)C
+InChI: InChI=1S/C9H17NO4/c1-7(11)14-8(5-9(12)13)6-10(2,3)4/h8H,5-6H2,1-4H3
+InChIKeys RDHQFKQIGNGIED-UHFFFAOYSA-N
+Chemfig:
+\chemfig{-[:60](=[:120]O)-O-[:300](-[:240]-[:300](-[:240,,,2]^{\mcfminus}O)%
+=O)--[:60,,,2]^{\mcfplus}N(-[:120,,2])(-[,,2])-[:60,,2]}
+This chemical structure contains 31 atoms and 30 bonds between them. There are 4 elements O,N,C,H, the corresponding number for each element is 4,1,9,17. Its weights is 203.24 in total.
+Synonyms: ['Acetyl-DL-carnitine', 'acetylcarnitine', 'DL-O-Acetylcarnitine', 'DL-Acetylcarnitine', '3-acetyloxy-4-(trimethylazaniumyl)butanoate', '3-(acetyloxy)-4-(trimethylazaniumyl)butanoate', '14992-62-2', 'Ammonium, (3-carboxy-2-hydroxypropyl)trimethyl-, hydroxide, inner salt, acetate, DL-', '1-Propanaminium, 2-(acetyloxy)-3-carboxy-N,N,N-trimethyl-, inner salt', '870-77-9', '(+/-)-acetylcarnitine', 'bmse000142', 'SCHEMBL69781', 'DTXSID2048117', 'CHEBI:73024', 'LMFA07070060', '1-Propanaminium, 2-(acetoxy)-3-carboxy-N,N,N-trimethyl-, hydroxide, inner salt, (+-)-', 'AS-82719', 'HY-126358', '3-(acetyloxy)-4-(trimethylammonio)butanoate', 'CS-0102945', 'FT-0778235', 'Q27140241', '1-Propanaminium, 2-(acetoxy)-3-carboxy-N,N,N-trimethyl-, hydroxide, inner salt, (+-)- (9CI)']
+process time: 30.98631453514099

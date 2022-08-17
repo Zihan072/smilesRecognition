@@ -97,14 +97,15 @@ def one_input():
         reversed_token_map_dir = '/cvhci/temp/zihanchen/data/lg_PubChem1M_ChEMBL75_RDkitclear/input_data/REVERSED_TOKENMAP_seed_123_max75smiles.json'
         imgs = glob.glob("./utils/input_img/*.png")
         path = './utils/pred_img/'
-        print(imgs)
+        #print("Strat to predict" + imgs)
 
         for img in imgs:
             print('='*100)
             image = img
             img_name = os.path.basename(image)
+            print("Strat to predict:", img_name)
             new_img_name = 'new_' + img_name
-            print(new_img_name)
+            print('The redrawn image:', new_img_name)
             reversed_token_map = load_reversed_token_map(reversed_token_map_dir)
 
             if config.grayscale is not None:

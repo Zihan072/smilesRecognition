@@ -135,7 +135,7 @@ def convert_smiles(smiles):
 
 def elements_num(elements):
     ls = {}
-    #n = 0
+    n = 0
     count = 1
     for idx in range(len(elements)-1):
         #if idx < len(elements)-1:
@@ -147,8 +147,16 @@ def elements_num(elements):
             count = 1
         else:
             count += 1
+    #the number of last element should be added 1.
+    last_ele = list(ls.keys())[-1]
+    last_value = list(ls.values())[-1]
+    last_value = last_value + 1
+    ls[last_ele] = last_value
+    #print(list(ls.keys())[-1])
+    #print(last_value)
 
     return ls
+
 
 def description(elements_num,bonds_num,atoms_num,weights):
     key = list(elements_num.keys())
