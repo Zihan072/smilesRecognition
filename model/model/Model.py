@@ -290,116 +290,116 @@ class MSTS:
         print('total fault:', fault_counter)
         return submission
 
-    def ensemble_test(self, submission, data_list, reversed_token_map, transform):
-        """
-        ensemble test function
-        :param submission: submission file
-        :param data_list: list of test data path
-        :param reversed_token_map: converts prediction to readable format
-        :param transform: normalize function
-        """
-        # load .yaml file that contains information about each model
-        with open('/cvhci/temp/zihanchen/data/model/model/prediction_models.yaml') as f:
-            p_configs = yaml.load(f)
-
-        predictors = []
-        # inefficient and wrong
-        # 1. model in Predict is outdated compared to model in Model.py
-        # 2. the current "model" object already contains a model -> you create 1 extra model for nothing
-        for conf in p_configs.values():
-            predictors.append(Predict.remote(conf, self._device,
-                                             self._gpu_non_block,
-                                             self._decode_length, self._model_load_path))
-        # 1. go to main.py and load yaml
-        # 2. for each p_config : make a new config with values from p_config overwritten over the default values from main.py
-        # 3. create a new model = MSTS(p_config)
-
-        loop = asyncio.get_event_loop()
-        async def process_async_calculate_similarity(combination_of_smiles, combination_index):
-            return {idx: await self.async_fps(comb[0], comb[1]) for comb, idx in zip(combination_of_smiles, combination_index)}
-
-        def process_calculate_similarity(smiles, index):
-            pass
-
-        # for each model:
-        # create a prediction (something similar to single_test)
-        def ray_prediction(imgs):
-            return ray.get([p.decode.remote(imgs) for p in predictors])
-
-
-        conf_len = len(p_configs)  # configure length == number of model to use
-        fault_counter = 0
-        #sequence = None
-        model_contribution = np.zeros(conf_len)
-        for i, dat in enumerate(data_list):
-            imgs = Image.open(self._test_file_path + dat)
-            imgs = self.png_to_tensor(imgs)
-            imgs = transform(imgs).pin_memory().cuda()
-
-            # predict SMILES sequence form each predictors
-            preds_raw = ray_prediction(imgs)
-
-            preds=[]
-            for p in preds_raw:
-                # predicted sequence token value
-                SMILES_predicted_sequence = list(torch.argmax(p.detach().cpu(), -1).numpy())[0]
-                # converts prediction to readable format from sequence token value
-                decoded_sequences = decode_predicted_sequences(SMILES_predicted_sequence, reversed_token_map)
-                preds.append(decoded_sequences)
-            del(preds_raw)
-
-            # fault check: whether the prediction satisfies the SMILES format or not
-            ms = {}
-            for idx, p in enumerate(preds):
-                m = MolFromSmiles(p)
-                if m != None:
-                    ms.update({idx:m})
-
-            if len(ms) == 0: # there is no decoded sequence that matches to SMILES format
-                print('decode fail')
-                fault_counter += 1
-                sequence = preds[0]
-
-            elif len(ms) == 1: # there is only one decoded sequence that matches to SMILES format
-                sequence = preds[list(ms.keys())[0]]
-
-            else: # there is more than two decoded sequence that matches to SMILES format
-                # result ensemble
-                ms_to_fingerprint = [RDKFingerprint(x) for x in ms.values()]
-                combination_of_smiles = list(combinations(ms_to_fingerprint, 2))
-                # [1 2 3 4 5]
-                # [[1, 2], [1,3 ], [1, 4], [1, 5], [2, 3] ... [4 5]]
-                ms_to_index = [x for x in ms]
-                combination_index = list(combinations(ms_to_index, 2))
-
-                # calculate similarity score
-                smiles_dict = loop.run_until_complete(process_async_calculate_similarity(combination_of_smiles, combination_index))
-
-                # sort the pairs by similarity score
-                smiles_dict = sorted(smiles_dict.items(), key=(lambda x: x[1]), reverse=True)
-
-                if smiles_dict[0][1] == 1.0: # if a similar score is 1 we assume to those predictions are correct.
-                    sequence = preds[smiles_dict[0][0][0]]
-                else:
-                    score_board = np.zeros(conf_len)
-                    for i, (idx, value) in enumerate(smiles_dict):
-                        score_board[list(idx)] += conf_len-i
-
-                    pick = int(np.argmax(score_board)) # choose the index that has the highest score
-                    sequence = preds[pick]  # pick the decoded sequence
-                    model_contribution[pick] += 1 # logging witch model used
-                    sequence = preds[np.argmax(score_board)]
-
-            print('{} sequence:, {}'.format(i, sequence))
-            # print('decode_time:', time.time() - start_time)
-
-            submission.loc[submission['file_name'] == dat, 'SMILES'] = sequence
-            del(preds)
-
-        loop.close()
-        print('total fault:', fault_counter)
-        print('model contribution:', model_contribution)
-        return submission
+    # def ensemble_test(self, submission, data_list, reversed_token_map, transform):
+    #     """
+    #     ensemble test function
+    #     :param submission: submission file
+    #     :param data_list: list of test data path
+    #     :param reversed_token_map: converts prediction to readable format
+    #     :param transform: normalize function
+    #     """
+    #     # load .yaml file that contains information about each model
+    #     with open('/cvhci/temp/zihanchen/data/model/model/prediction_models.yaml') as f:
+    #         p_configs = yaml.load(f)
+    #
+    #     predictors = []
+    #     # inefficient and wrong
+    #     # 1. model in Predict is outdated compared to model in Model.py
+    #     # 2. the current "model" object already contains a model -> you create 1 extra model for nothing
+    #     for conf in p_configs.values():
+    #         predictors.append(Predict.remote(conf, self._device,
+    #                                          self._gpu_non_block,
+    #                                          self._decode_length, self._model_load_path))
+    #     # 1. go to main.py and load yaml
+    #     # 2. for each p_config : make a new config with values from p_config overwritten over the default values from main.py
+    #     # 3. create a new model = MSTS(p_config)
+    #
+    #     loop = asyncio.get_event_loop()
+    #     async def process_async_calculate_similarity(combination_of_smiles, combination_index):
+    #         return {idx: await self.async_fps(comb[0], comb[1]) for comb, idx in zip(combination_of_smiles, combination_index)}
+    #
+    #     def process_calculate_similarity(smiles, index):
+    #         pass
+    #
+    #     # for each model:
+    #     # create a prediction (something similar to single_test)
+    #     def ray_prediction(imgs):
+    #         return ray.get([p.decode.remote(imgs) for p in predictors])
+    #
+    #
+    #     conf_len = len(p_configs)  # configure length == number of model to use
+    #     fault_counter = 0
+    #     #sequence = None
+    #     model_contribution = np.zeros(conf_len)
+    #     for i, dat in enumerate(data_list):
+    #         imgs = Image.open(self._test_file_path + dat)
+    #         imgs = self.png_to_tensor(imgs)
+    #         imgs = transform(imgs).pin_memory().cuda()
+    #
+    #         # predict SMILES sequence form each predictors
+    #         preds_raw = ray_prediction(imgs)
+    #
+    #         preds=[]
+    #         for p in preds_raw:
+    #             # predicted sequence token value
+    #             SMILES_predicted_sequence = list(torch.argmax(p.detach().cpu(), -1).numpy())[0]
+    #             # converts prediction to readable format from sequence token value
+    #             decoded_sequences = decode_predicted_sequences(SMILES_predicted_sequence, reversed_token_map)
+    #             preds.append(decoded_sequences)
+    #         del(preds_raw)
+    #
+    #         # fault check: whether the prediction satisfies the SMILES format or not
+    #         ms = {}
+    #         for idx, p in enumerate(preds):
+    #             m = MolFromSmiles(p)
+    #             if m != None:
+    #                 ms.update({idx:m})
+    #
+    #         if len(ms) == 0: # there is no decoded sequence that matches to SMILES format
+    #             print('decode fail')
+    #             fault_counter += 1
+    #             sequence = preds[0]
+    #
+    #         elif len(ms) == 1: # there is only one decoded sequence that matches to SMILES format
+    #             sequence = preds[list(ms.keys())[0]]
+    #
+    #         else: # there is more than two decoded sequence that matches to SMILES format
+    #             # result ensemble
+    #             ms_to_fingerprint = [RDKFingerprint(x) for x in ms.values()]
+    #             combination_of_smiles = list(combinations(ms_to_fingerprint, 2))
+    #             # [1 2 3 4 5]
+    #             # [[1, 2], [1,3 ], [1, 4], [1, 5], [2, 3] ... [4 5]]
+    #             ms_to_index = [x for x in ms]
+    #             combination_index = list(combinations(ms_to_index, 2))
+    #
+    #             # calculate similarity score
+    #             smiles_dict = loop.run_until_complete(process_async_calculate_similarity(combination_of_smiles, combination_index))
+    #
+    #             # sort the pairs by similarity score
+    #             smiles_dict = sorted(smiles_dict.items(), key=(lambda x: x[1]), reverse=True)
+    #
+    #             if smiles_dict[0][1] == 1.0: # if a similar score is 1 we assume to those predictions are correct.
+    #                 sequence = preds[smiles_dict[0][0][0]]
+    #             else:
+    #                 score_board = np.zeros(conf_len)
+    #                 for i, (idx, value) in enumerate(smiles_dict):
+    #                     score_board[list(idx)] += conf_len-i
+    #
+    #                 pick = int(np.argmax(score_board)) # choose the index that has the highest score
+    #                 sequence = preds[pick]  # pick the decoded sequence
+    #                 model_contribution[pick] += 1 # logging witch model used
+    #                 sequence = preds[np.argmax(score_board)]
+    #
+    #         print('{} sequence:, {}'.format(i, sequence))
+    #         # print('decode_time:', time.time() - start_time)
+    #
+    #         submission.loc[submission['file_name'] == dat, 'SMILES'] = sequence
+    #         del(preds)
+    #
+    #     loop.close()
+    #     print('total fault:', fault_counter)
+    #     print('model contribution:', model_contribution)
+    #     return submission
 
     #TODO
     def one_test(self, image, reversed_token_map, transform):
@@ -413,7 +413,25 @@ class MSTS:
 
 
         imgs = Image.open(image)
+        print(imgs.mode)
+        # if image channels is 4, img mode is RGBA convert RGBA into RGB
+        if len(imgs.mode) == 4:
+            x = np.array(imgs)
+            r, g, b, a = np.rollaxis(x, axis = -1)
+            r[a == 0] = 255
+            g[a == 0] = 255
+            b[a == 0] = 255
+            x = np.dstack([r, g, b])
+            imgs = Image.fromarray(x, 'RGB')
+        #imgs = cv2.cvtColor(imgs, cv2.COLOR_RGBA2RGB)
+        else:
+            pass
+
+        print(imgs.mode)
         imgs = self.png_to_tensor(imgs)
+        print(imgs.shape)
+
+
         imgs = transform(imgs).to(self._device)
         encoded_imgs = self._encoder(imgs.unsqueeze(0))
         print("USING NEW PREDICTION CODE ...")
