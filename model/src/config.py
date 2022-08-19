@@ -36,10 +36,10 @@ from pathlib import Path
 """test"""
 
 # ###Test fromPubChem <75
-# test_dir = '/cvhci/temp/zihanchen/data/testset_isomeric/test_img_100K/'
-# sample_submission_dir = '/cvhci/temp/zihanchen/data/testset_isomeric/test_100K.csv'
-# generate_submission_dir = 'test_100K_pred.csv'
-# sample_submission_labels_dir = '/cvhci/temp/zihanchen/data/testset_isomeric/test_100K_labels.csv'
+test_dir = '/cvhci/temp/zihanchen/data/testset_isomeric/test_img_100K/'
+sample_submission_dir = '/cvhci/temp/zihanchen/data/testset_isomeric/test_100K.csv'
+generate_submission_dir = 'test_100K_pred.csv'
+sample_submission_labels_dir = '/cvhci/temp/zihanchen/data/testset_isomeric/test_100K_labels.csv'
 
 ###Test fromPubChem length between 75 and 100
 # test_dir = '/cvhci/temp/zihanchen/data/testset_isomeric/test_img_75to100_100K/'
@@ -75,10 +75,10 @@ from pathlib import Path
 # sample_submission_labels_dir = '/cvhci/temp/zihanchen/data/ChEMBL/chembl/test_labels.csv'
 
 ###ChEMBL test 75<length<100
-test_dir = '/cvhci/temp/zihanchen/data/ChEMBL/chembl_100/test/'
-sample_submission_dir = '/cvhci/temp/zihanchen/data/ChEMBL/chembl_100/test.csv'
-generate_submission_dir = 'test_chem75-100_pred.csv'
-sample_submission_labels_dir = '/cvhci/temp/zihanchen/data/ChEMBL/chembl_100/test_labels.csv'
+# test_dir = '/cvhci/temp/zihanchen/data/ChEMBL/chembl_100/test/'
+# sample_submission_dir = '/cvhci/temp/zihanchen/data/ChEMBL/chembl_100/test.csv'
+# generate_submission_dir = 'test_chem75-100_pred.csv'
+# sample_submission_labels_dir = '/cvhci/temp/zihanchen/data/ChEMBL/chembl_100/test_labels.csv'
 
 
 
@@ -87,7 +87,7 @@ sample_submission_labels_dir = '/cvhci/temp/zihanchen/data/ChEMBL/chembl_100/tes
 # lg dataset + 1M PubChem
 """train"""
 
-data_dir = Path('/cvhci/temp/zihanchen/data/PubChem5M_ChEMBL100')
+data_dir = Path('/cvhci/temp/zihanchen/data/lg_PubChem1M_ChEMBL75_RDkitclear')
 #data_dir_1 = Path('/cvhci/temp/zihanchen/data/DACON_SMILES_data') #DACON
 data_dir_1 = Path('/cvhci/temp/zihanchen/data/new_images_5M_75')
 #data_dir_2 = Path('/cvhci/temp/zihanchen/data/new_images5M_75_noise')

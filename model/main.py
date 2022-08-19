@@ -178,9 +178,11 @@ def main():
             new_config.encoder_type = p_config['encoder_type']
             new_config.tf_encoder = p_config['tf_encoder']
             new_config.tf_decoder = p_config['tf_decoder']
-            new_config.load_model_path = p_config['load_model_path']
-            new_config.load_model_num = p_config['load_model_num']
-
+            # new_config.load_model_path = p_config['load_model_path']
+            # new_config.load_model_num = p_config['load_model_num']
+            new_config.model_load_path = p_config['load_model_path']
+            new_config.model_load_num = p_config['load_model_num']
+            new_config.reverse_token_map = p_config['reverse_token_map']
             return new_config
 
         # now we create models:
@@ -189,6 +191,7 @@ def main():
 
         model_configs = []
         models = []
+        reverse_token_maps = []
         for key in p_configs:
             p_config = p_configs[key]
             print(p_config, key)
@@ -203,11 +206,15 @@ def main():
             model_._decoder.eval()
             models.append(model_)
 
+            reverse_token_map = load_reversed_token_map(model_config.reverse_token_map)
+            reverse_token_maps.append(reverse_token_map)
+
+
 
         if not config.test_file_path == None:
 
             submission = pd.read_csv(sample_submission_dir)
-            reversed_token_map = load_reversed_token_map(reversed_token_map_dir)
+            # reversed_token_map = load_reversed_token_map(reversed_token_map_dir)
             data_list = os.listdir(config.test_file_path)
 
             if config.grayscale is not False:
@@ -266,11 +273,11 @@ def main():
                 preds_raw = _decode(models, imgs)
 
                 preds=[]
-                for p in preds_raw:
+                for p, r_v_m in zip(preds_raw, reverse_token_maps):
                     # predicted sequence token value
                     SMILES_predicted_sequence = list(torch.argmax(p.detach().cpu(), -1).numpy())[0]
                     # converts prediction to readable format from sequence token value
-                    decoded_sequences = decode_predicted_sequences(SMILES_predicted_sequence, reversed_token_map)
+                    decoded_sequences = decode_predicted_sequences(SMILES_predicted_sequence, r_v_m)
                     preds.append(decoded_sequences)
                 del(preds_raw)
                 print(preds)
@@ -308,13 +315,13 @@ def main():
                         sequence = preds[smiles_dict[0][0][0]]
                     else:
                         score_board = np.zeros(conf_len)
-                        for i, (idx, value) in enumerate(smiles_dict):
-                            score_board[list(idx)] += conf_len-i
+                        for j, (idx, value) in enumerate(smiles_dict):
+                            score_board[list(idx)] += conf_len-j
 
                         pick = int(np.argmax(score_board)) # choose the index that has the highest score
                         sequence = preds[pick]  # pick the decoded sequence
                         model_contribution[pick] += 1 # logging witch model used
-                        sequence = preds[np.argmax(score_board)]
+                        #sequence = preds[np.argmax(score_board)]
 
                 print('{} sequence:, {}'.format(i, sequence))
                 # print('decode_time:', time.time() - start_time)
