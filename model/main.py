@@ -50,7 +50,7 @@ def main():
     parser.add_argument('--checkpointing_cnn', type=int, default=0, help='Checkpoint  the cnn to save memory')
     parser.add_argument('--workers', type=int, default=8, help='for data-loading; right now, only 1 works with h5py')
     parser.add_argument('--encoder_lr', type=float, default=1e-4, help='learning rate for encoder if fine-tuning')
-    parser.add_argument('--decoder_lr', type=float, default=4e-4, help='learning rate for decoer')
+    parser.add_argument('--decoder_lr', type=float, default=4e-4, help='learning rate for decoder')
     parser.add_argument('--grad_clip', type=float, default=5., help='clip gradients at an absolute value of')
     parser.add_argument('--fine_tune_encoder', type=str2bool, default=True, help='fine-tune encoder')
 
@@ -158,7 +158,8 @@ def main():
 
         #for experiments esamble test, easy for caculating tanimoto
         #for application esamble prediction, evaluate and generate more information from platfrom PubChem for users.
-        from src.config import sample_submission_dir, generate_submission_dir, reversed_token_map_dir
+        from src.config import sample_submission_dir, generate_submission_dir
+        #from src.config import sample_submission_dir, generate_submission_dir, reversed_token_map_dir
         from PIL import Image
 
         from rdkit import Chem

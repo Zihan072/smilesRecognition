@@ -106,7 +106,8 @@ class MSTS:
                                 checkpointing_cnn=self._checkpointing_cnn)
         self._encoder.to(self._device, non_blocking=self._gpu_non_block)
         self._encoder.fine_tune(self._fine_tune_encoder)
-        #print(self._encoder) #print model structure
+        print(self._encoder) #print model structure
+        print(self._decoder) #print model structure
         #print(len(self._encoder.resnet[0]))
         #
         self._encoder_optimizer = torch.optim.Adam(self._encoder.parameters(),
@@ -427,6 +428,54 @@ class MSTS:
         #imgs = cv2.cvtColor(imgs, cv2.COLOR_RGBA2RGB)
         else:
             pass
+
+        #print(imgs.mode)
+        imgs = self.png_to_tensor(imgs)
+        #print(imgs.shape)
+
+
+        imgs = transform(imgs).to(self._device)
+        encoded_imgs = self._encoder(imgs.unsqueeze(0))
+        print("USING NEW PREDICTION CODE ...")
+        predictions = self._decoder(encoded_imgs, decode_lengths=self._decode_length, mode='generation')
+
+        SMILES_predicted_sequence = list(torch.argmax(predictions.detach().cpu(), -1).numpy())[0]
+        decoded_sequences = decode_predicted_sequences(SMILES_predicted_sequence, reversed_token_map)
+
+
+        del (predictions)
+
+        return decoded_sequences
+
+
+    def ensemble_test(self, image, reversed_token_map, transform):
+        """
+        input is one sample for model test function
+        :param reversed_token_map: converts prediction to readable format
+        :param transform: normalize function
+        """
+        self._encoder.eval()
+        self._decoder.eval()
+
+
+        imgs = Image.open(image)
+        print("Input image mode:", imgs.mode)
+        print("Input image size", imgs.size)
+        # if image channels is 4, img mode is RGBA convert RGBA into RGB
+        if len(imgs.mode) == 4:
+            x = np.array(imgs)
+            r, g, b, a = np.rollaxis(x, axis = -1)
+            r[a == 0] = 255
+            g[a == 0] = 255
+            b[a == 0] = 255
+            x = np.dstack([r, g, b])
+            imgs = Image.fromarray(x, 'RGB')
+        #imgs = cv2.cvtColor(imgs, cv2.COLOR_RGBA2RGB)
+        else:
+            pass
+
+
+
 
         #print(imgs.mode)
         imgs = self.png_to_tensor(imgs)

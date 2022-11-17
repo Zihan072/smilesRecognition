@@ -119,7 +119,7 @@ def convert_smiles(smiles):
         print('Isomeric SMILES:',isomeric_smiles)
         print('Other Canonical SMILES:',smiles_cano)
         print('InChI:', inchi)
-        print('InChIKeys', inchikey)
+        print('InChIKeys:', inchikey)
         print('Chemfig:')
         #print(chem)
         mol2chem(inchi)
