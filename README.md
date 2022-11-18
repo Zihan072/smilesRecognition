@@ -15,6 +15,9 @@ You can download the model weights from this link
 
 Put the decompressed file under path:  *model/src/model_path*
 
+You can download the model weights of multi-models from this link
+#TODO
+Put the decompressed file under path:  *model/model/multi-model_path/*
 
 
 ### Install Enviroment
@@ -31,10 +34,21 @@ conda env create --name chem_info_env --file utils/chem_info.yml
 
 Put images which you want to predict under the folder */model/utils/input_img*
 
-Run commad under path *model/*
+Run command under path *model/*
 
 ```
 python one_input_pred.py | tee log.csv
+```
+
+
+### ensemble prediction(multi-model)
+
+Change test path in ./src/config.py.
+
+Run command 
+
+```
+python main.py --work_type ensemble_test
 ```
 
 
