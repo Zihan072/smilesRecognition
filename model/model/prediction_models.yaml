@@ -28,9 +28,11 @@ model1:
   encoder_type: efficientnetB0
   tf_encoder: 6
   tf_decoder: 6
-  load_model_path: /cvhci/temp/zihanchen/data/model/multi_model/model_path/
+  #load_model_path: /cvhci/temp/zihanchen/data/model/multi_model/model_path/
+  load_model_path: ./multi-model_path/
   load_model_num: 1
-  reverse_token_map: /cvhci/temp/zihanchen/data/model/multi_model/reversed_token_map/REVERSED_TOKENMAP_1.json
+  reverse_token_map: ./reversed_token_map/REVERSED_TOKENMAP_1.json
+  #reverse_token_map: /cvhci/temp/zihanchen/data/model/multi_model/reversed_token_map/REVERSED_TOKENMAP_1.json
   #/cvhci/temp/zihanchen/data/lg_PubChem1M_ChEMBL75_RDkitclear/input_data/REVERSED_TOKENMAP_seed_123_max75smiles.json->REVERSED_TOKENMAP_1.json
 
 #'''
@@ -48,9 +50,11 @@ model2:
   encoder_type: efficientnetB0
   tf_encoder: 2
   tf_decoder: 0
-  load_model_path: /cvhci/temp/zihanchen/data/model/multi_model/model_path/
+  #load_model_path: /cvhci/temp/zihanchen/data/model/multi_model/model_path/
+  load_model_path: ./multi-model_path/
   load_model_num: 2
-  reverse_token_map: /cvhci/temp/zihanchen/data/model/multi_model/reversed_token_map/REVERSED_TOKENMAP_2.json
+  reverse_token_map: ./reversed_token_map/REVERSED_TOKENMAP_2.json
+  #reverse_token_map: /cvhci/temp/zihanchen/data/model/multi_model/reversed_token_map/REVERSED_TOKENMAP_2.json
  #/cvhci/temp/zihanchen/data/lg_PubChem1M_RDkitclear_noise/input_data/REVERSED_TOKENMAP_seed_123_max75smiles.json
 
 #'''
@@ -68,9 +72,9 @@ model3:
   encoder_type: efficientnetB0
   tf_encoder: 6
   tf_decoder: 6
-  load_model_path: /cvhci/temp/zihanchen/data/model/multi_model/model_path/
+  load_model_path: ./multi-model_path/
   load_model_num: 3
-  reverse_token_map: /cvhci/temp/zihanchen/data/model/multi_model/reversed_token_map/REVERSED_TOKENMAP_2.json
+  reverse_token_map: ./reversed_token_map/REVERSED_TOKENMAP_2.json
 #
 #
 #
@@ -89,9 +93,10 @@ model4:
   encoder_type: efficientnetB0
   tf_encoder: 2
   tf_decoder: 0
-  load_model_path: /cvhci/temp/zihanchen/data/model/multi_model/model_path/
+  load_model_path: ./multi-model_path/
   load_model_num: 4
-  reverse_token_map: /cvhci/temp/zihanchen/data/model/multi_model/reversed_token_map/REVERSED_TOKENMAP_4.json
+  reverse_token_map: ./reversed_token_map/REVERSED_TOKENMAP_4.json
+  #reverse_token_map: /cvhci/temp/zihanchen/data/model/multi_model/reversed_token_map/REVERSED_TOKENMAP_4.json
   #/cvhci/temp/zihanchen/data/lg_PubChem1M_RDkitclear/input_data/REVERSED_TOKENMAP_seed_123_max75smiles.json
 #
 #
@@ -110,8 +115,9 @@ model5:
   encoder_type: efficientnetB0
   tf_encoder: 2
   tf_decoder: 0
-  load_model_path: /cvhci/temp/zihanchen/data/model/multi_model/model_path/
+  load_model_path: ./multi-model_path/
   load_model_num: 5
-  reverse_token_map: /cvhci/temp/zihanchen/data/model/multi_model/reversed_token_map/REVERSED_TOKENMAP_5.json
+  reverse_token_map: ./reversed_token_map/REVERSED_TOKENMAP_5.json
+  #reverse_token_map: /cvhci/temp/zihanchen/data/model/multi_model/reversed_token_map/REVERSED_TOKENMAP_5.json
   #/cvhci/temp/zihanchen/data/lg_PubChem1M_100/input_data/REVERSED_TOKENMAP_seed_123_max100smiles.json
 
